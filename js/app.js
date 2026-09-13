@@ -1,0 +1,105 @@
+/**
+ * AGRISIGHT — Main Application Orchestrator
+ */
+
+const AgrisightApp = (function () {
+  function init() {
+    console.log('Initializing AGRISIGHT Spatial Analysis Application...');
+
+    // Initialize Modules
+    AgrisightFilters.init();
+    AgrisightSidebar.init();
+    AgrisightComparison.init();
+    if (window.AgrisightAnalysisModal) {
+      AgrisightAnalysisModal.init();
+    }
+    if (window.AgrisightDashboardModal) {
+      AgrisightDashboardModal.init();
+    }
+    if (window.AgrisightPredictionModal) {
+      AgrisightPredictionModal.init();
+    }
+    if (window.AgrisightWhatIfModal) {
+      AgrisightWhatIfModal.init();
+    }
+    AgrisightMap.init();
+
+    // Setup Navigation Tabs & Modals
+    setupNavigation();
+
+    // Check if initial hash or query params exist
+    checkUrlParams();
+
+    showToast('Peta Ketahanan Pangan 514 Kabupaten/Kota berhasil dimuat.', 'success');
+  }
+
+  function setupNavigation() {
+    const navTabs = document.querySelectorAll('.nav-tab');
+    navTabs.forEach(tab => {
+      tab.addEventListener('click', function (e) {
+        e.preventDefault();
+        const feature = this.getAttribute('data-nav');
+        if (feature === 'spatial') return;
+
+        if (feature === 'dashboard' && window.AgrisightDashboardModal) {
+          AgrisightDashboardModal.open();
+        } else if (feature === 'regional' && window.AgrisightAnalysisModal) {
+          const selected = (AgrisightSidebar && AgrisightSidebar.getCurrentRegency()) || (typeof KABUPATEN_DATA !== 'undefined' ? KABUPATEN_DATA[0] : null);
+          AgrisightAnalysisModal.open(selected);
+        } else if (feature === 'prediction' && window.AgrisightPredictionModal) {
+          const selected = (AgrisightSidebar && AgrisightSidebar.getCurrentRegency()) || (typeof KABUPATEN_DATA !== 'undefined' ? KABUPATEN_DATA[0] : null);
+          AgrisightPredictionModal.open(selected);
+        } else if (feature === 'whatif' && window.AgrisightWhatIfModal) {
+          const selected = (AgrisightSidebar && AgrisightSidebar.getCurrentRegency()) || (typeof KABUPATEN_DATA !== 'undefined' ? KABUPATEN_DATA[0] : null);
+          AgrisightWhatIfModal.open(selected);
+        }
+      });
+    });
+  }
+
+  function checkUrlParams() {
+    const hash = window.location.hash;
+    if (hash && hash.startsWith('#kab=')) {
+      const kabId = hash.replace('#kab=', '').trim();
+      setTimeout(() => {
+        AgrisightMap.selectKabupatenById(kabId, true);
+      }, 500);
+    }
+  }
+
+  function showToast(message, type = 'info') {
+    let container = document.getElementById('toast-container');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'toast-container';
+      document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    
+    let icon = 'ℹ️';
+    if (type === 'success') icon = '✅';
+    if (type === 'error') icon = '⚠️';
+
+    toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+    container.appendChild(toast);
+
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateY(10px)';
+      toast.style.transition = 'all 0.3s ease';
+      setTimeout(() => toast.remove(), 300);
+    }, 3500);
+  }
+
+  return {
+    init,
+    showToast
+  };
+})();
+
+// Bootstrap when DOM is ready
+document.addEventListener('DOMContentLoaded', function () {
+  AgrisightApp.init();
+});
