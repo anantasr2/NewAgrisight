@@ -14,12 +14,12 @@ const AgrisightMap = (function () {
   const dataByName = new Map();
   const layerById = new Map();
 
-  // Initial map center & bounds for Indonesia archipelago
+  // Initial map center & bounds strictly for Indonesia archipelago
   const INDO_CENTER = [-2.5, 118.0];
   const INDO_ZOOM = 5;
   const INDO_BOUNDS = L.latLngBounds(
-    L.latLng(-11.5, 94.5), // Southwest
-    L.latLng(6.5, 141.5)   // Northeast
+    L.latLng(-11.5, 94.5), // Southwest: Southern tip of Rote/Timor & Western tip of Sabang
+    L.latLng(6.5, 141.5)   // Northeast: Northern tip of Aceh & Eastern border of Papua
   );
 
   function init() {
@@ -44,17 +44,16 @@ const AgrisightMap = (function () {
       center: INDO_CENTER,
       zoom: INDO_ZOOM,
       minZoom: 4,
-      maxZoom: 11,
+      maxZoom: 10,
       maxBounds: INDO_BOUNDS,
-      maxBoundsViscosity: 0.9,
+      maxBoundsViscosity: 1.0, // Strict bounce-back boundary lock to Indonesia
       zoomControl: true,
       attributionControl: false
     });
 
-    // Light Natural Basemap (CartoDB Positron - Clean, fast, crisp light canvas)
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    // Light Neutral Canvas Basemap (Esri World Light Gray - 100% Free, No API Key, Clean, Reliable)
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
       maxZoom: 16,
-      subdomains: 'abcd',
       opacity: 0.95
     }).addTo(map);
 

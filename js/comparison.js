@@ -7,33 +7,44 @@ const AgrisightComparison = (function () {
   let selectedRegions = [];
   const MAX_REGIONS = 3;
 
-  const trayEl = document.getElementById('comparison-tray');
-  const trayChipsEl = document.getElementById('tray-selected-chips');
-  const drawerEl = document.getElementById('comparison-drawer');
-  const drawerBackdropEl = document.getElementById('drawer-backdrop');
-  const countBadgeEl = document.getElementById('drawer-count-badge');
-  const tableContainerEl = document.getElementById('comparison-table-container');
+  function getElements() {
+    return {
+      trayEl: document.getElementById('comparison-tray'),
+      trayChipsEl: document.getElementById('tray-chips-container') || document.getElementById('tray-selected-chips'),
+      btnOpenTray: document.getElementById('btn-open-tray-compare') || document.getElementById('btn-open-comparison'),
+      drawerEl: document.getElementById('comparison-drawer'),
+      countBadgeEl: document.getElementById('compare-count-badge') || document.getElementById('drawer-count-badge'),
+      btnCloseDrawer: document.getElementById('btn-close-comparison') || document.getElementById('btn-close-drawer'),
+      btnClearAll: document.getElementById('btn-clear-comparison'),
+      tableContainerEl: document.querySelector('.comparison-table-container'),
+      radarCanvasId: 'comparison-radar-canvas',
+      backdropEl: document.getElementById('app-modal-backdrop')
+    };
+  }
 
   function init() {
-    // Open drawer on tray click
-    const btnOpenDrawer = document.getElementById('btn-open-comparison');
-    if (btnOpenDrawer) {
-      btnOpenDrawer.addEventListener('click', openDrawer);
+    const els = getElements();
+
+    // Open drawer on tray button click
+    if (els.btnOpenTray) {
+      els.btnOpenTray.addEventListener('click', openDrawer);
     }
 
     // Close drawer
-    const btnCloseDrawer = document.getElementById('btn-close-drawer');
-    if (btnCloseDrawer) {
-      btnCloseDrawer.addEventListener('click', closeDrawer);
-    }
-    if (drawerBackdropEl) {
-      drawerBackdropEl.addEventListener('click', closeDrawer);
+    if (els.btnCloseDrawer) {
+      els.btnCloseDrawer.addEventListener('click', closeDrawer);
     }
 
     // Clear all
-    const btnClearAll = document.getElementById('btn-clear-comparison');
-    if (btnClearAll) {
-      btnClearAll.addEventListener('click', clearAll);
+    if (els.btnClearAll) {
+      els.btnClearAll.addEventListener('click', clearAll);
+    }
+
+    // Backdrop click
+    if (els.backdropEl) {
+      els.backdropEl.addEventListener('click', () => {
+        if (isDrawerOpen()) closeDrawer();
+      });
     }
   }
 
@@ -78,33 +89,36 @@ const AgrisightComparison = (function () {
   }
 
   function updateUI() {
-    if (!trayEl || !trayChipsEl) return;
+    const els = getElements();
+    if (!els.trayEl) return;
 
     if (selectedRegions.length > 0) {
-      trayEl.classList.add('visible');
+      els.trayEl.classList.add('visible');
     } else {
-      trayEl.classList.remove('visible');
+      els.trayEl.classList.remove('visible');
     }
 
-    trayChipsEl.innerHTML = '';
-    selectedRegions.forEach(r => {
-      const clusterMeta = CLUSTERS_META[r.cluster] || CLUSTERS_META[2];
-      const chip = document.createElement('div');
-      chip.className = 'tray-chip';
-      chip.innerHTML = `
-        <span style="width:8px; height:8px; border-radius:50%; background-color:${clusterMeta.color}"></span>
-        <span>${r.name}</span>
-        <span class="tray-chip-remove" data-id="${r.id}">&times;</span>
-      `;
-      chip.querySelector('.tray-chip-remove').addEventListener('click', (e) => {
-        e.stopPropagation();
-        removeRegion(r.id);
+    if (els.trayChipsEl) {
+      els.trayChipsEl.innerHTML = '';
+      selectedRegions.forEach(r => {
+        const clusterMeta = CLUSTERS_META[r.cluster] || CLUSTERS_META[2];
+        const chip = document.createElement('div');
+        chip.className = 'tray-chip';
+        chip.innerHTML = `
+          <span style="width:8px; height:8px; border-radius:50%; background-color:${clusterMeta.color}"></span>
+          <span>${r.name}</span>
+          <span class="tray-chip-remove" data-id="${r.id}" style="cursor:pointer; margin-left:4px; font-weight:bold;">&times;</span>
+        `;
+        chip.querySelector('.tray-chip-remove').addEventListener('click', (e) => {
+          e.stopPropagation();
+          removeRegion(r.id);
+        });
+        els.trayChipsEl.appendChild(chip);
       });
-      trayChipsEl.appendChild(chip);
-    });
+    }
 
-    if (countBadgeEl) {
-      countBadgeEl.textContent = `${selectedRegions.length} Wilayah`;
+    if (els.countBadgeEl) {
+      els.countBadgeEl.textContent = `${selectedRegions.length} Wilayah`;
     }
 
     if (isDrawerOpen()) {
@@ -113,28 +127,41 @@ const AgrisightComparison = (function () {
   }
 
   function openDrawer() {
+    const els = getElements();
     if (selectedRegions.length === 0) {
       AgrisightApp.showToast('Pilih minimal 1 wilayah untuk dibandingkan.', 'info');
       return;
     }
-    drawerEl.classList.add('open');
-    if (drawerBackdropEl) drawerBackdropEl.classList.add('open');
+    if (els.drawerEl) {
+      els.drawerEl.classList.add('open');
+    }
+    if (els.backdropEl) {
+      els.backdropEl.style.opacity = '1';
+      els.backdropEl.style.pointerEvents = 'auto';
+    }
     renderDrawerContent();
   }
 
   function closeDrawer() {
-    drawerEl.classList.remove('open');
-    if (drawerBackdropEl) drawerBackdropEl.classList.remove('open');
+    const els = getElements();
+    if (els.drawerEl) {
+      els.drawerEl.classList.remove('open');
+    }
+    if (els.backdropEl) {
+      els.backdropEl.style.opacity = '0';
+      els.backdropEl.style.pointerEvents = 'none';
+    }
   }
 
   function isDrawerOpen() {
-    return drawerEl && drawerEl.classList.contains('open');
+    const els = getElements();
+    return els.drawerEl && els.drawerEl.classList.contains('open');
   }
 
   function renderDrawerContent() {
-    if (!tableContainerEl || selectedRegions.length === 0) return;
+    const els = getElements();
+    if (!els.tableContainerEl || selectedRegions.length === 0) return;
 
-    // Build comparison table
     const keys = ['ikp', 'x1', 'x2', 'x3', 'x4', 'x5', 'x6', 'x7', 'x8', 'x9'];
 
     let html = `
@@ -144,39 +171,40 @@ const AgrisightComparison = (function () {
             <th>Indikator / Parameter</th>
             ${selectedRegions.map(r => `
               <th>
-                <div style="font-weight:700; color:#fff;">${r.name}</div>
-                <div style="font-size:0.7rem; color:#94a3b8;">${r.province}</div>
+                <div style="font-weight:700; color:var(--forest-900); font-size:0.9rem;">${r.name}</div>
+                <div style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">${r.province}</div>
               </th>
             `).join('')}
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td style="font-weight:600; color:#cbd5e1;">Cluster K-Medoids</td>
+            <td style="font-weight:700; color:var(--forest-900);">Klaster K-Medoids</td>
             ${selectedRegions.map(r => {
-              const c = CLUSTERS_META[r.cluster];
-              return `<td><span class="badge ${c.badgeClass}">${c.name}</span></td>`;
+              const c = CLUSTERS_META[r.cluster] || CLUSTERS_META[2];
+              return `<td><span class="badge ${c.badgeClass}">${c.shortName}</span></td>`;
             }).join('')}
           </tr>
     `;
 
     keys.forEach(key => {
       const meta = INDICATORS_META[key];
+      if (!meta) return;
       html += `
         <tr>
           <td>
-            <div style="font-weight:600; color:#f8fafc;">${meta.shortName}</div>
-            <div style="font-size:0.7rem; color:#64748b;">${meta.description.substring(0, 50)}...</div>
+            <div style="font-weight:700; color:var(--forest-900);">${meta.shortName}</div>
+            <div style="font-size:0.7rem; color:var(--text-muted);">${meta.description ? meta.description.substring(0, 50) + '...' : ''}</div>
           </td>
           ${selectedRegions.map(r => {
             const val = r[key];
             const isIKP = key === 'ikp';
             return `
               <td>
-                <span style="font-family:var(--font-mono); font-size:1rem; font-weight:700; color:${isIKP ? '#38bdf8' : '#f8fafc'};">
+                <span style="font-family:var(--font-sans); font-size:1rem; font-weight:800; color:${isIKP ? 'var(--forest-800)' : 'var(--forest-900)'};">
                   ${val}
                 </span>
-                <span style="font-size:0.7rem; color:#94a3b8; margin-left:2px;">${meta.unit}</span>
+                <span style="font-size:0.7rem; color:var(--text-muted); margin-left:2px;">${meta.unit}</span>
               </td>
             `;
           }).join('')}
@@ -189,10 +217,12 @@ const AgrisightComparison = (function () {
       </table>
     `;
 
-    tableContainerEl.innerHTML = html;
+    els.tableContainerEl.innerHTML = html;
 
     // Render comparison radar chart
-    AgrisightCharts.renderComparisonRadar('comparison-radar-canvas', selectedRegions);
+    if (document.getElementById(els.radarCanvasId)) {
+      AgrisightCharts.renderComparisonRadar(els.radarCanvasId, selectedRegions);
+    }
   }
 
   return {
