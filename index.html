@@ -67,14 +67,18 @@
       background-image: radial-gradient(rgba(27, 59, 43, 0.035) 1px, transparent 0);
       background-size: 24px 24px;
     }
-    .node-point {
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Mini Leaflet map overrides */
+    #mini-spatial-map .leaflet-control-zoom {
+      display: none !important;
     }
-    .node-point:hover {
-      r: 8px;
-      filter: drop-shadow(0 0 6px rgba(27, 59, 43, 0.4));
+    #mini-spatial-map .leaflet-control-attribution {
+      display: none !important;
     }
   </style>
+
+  <!-- Leaflet CSS for mini-map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 </head>
 
 <body class="bg-[#fafaf5] text-[#1a1f1c] font-sans antialiased selection:bg-forest-800 selection:text-cream-50 subtle-grain min-h-screen flex flex-col">
@@ -95,7 +99,7 @@
         </div>
       </a>
 
-      <!-- 3 Main Navigation Features -->
+      <!-- Desktop Navigation Menu -->
       <nav class="hidden md:flex items-center space-x-1.5 bg-[#eeeee9] px-2.5 py-1.5 rounded-full border border-[#e3e3de] text-xs font-semibold text-stone-700">
         <a class="px-4 py-2 rounded-full font-bold text-white bg-forest-800 shadow-sm transition-all" href="index.html">
           Beranda
@@ -109,13 +113,39 @@
           <span class="text-[9px] uppercase px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-900 font-bold border border-amber-200">AI Model</span>
         </a>
       </nav>
+
+      <!-- Mobile Menu Hamburger Button -->
+      <button id="mobile-menu-btn" class="md:hidden flex items-center justify-center w-10 h-10 rounded-xl bg-[#eeeee9] text-stone-700 hover:text-forest-900 border border-[#e3e3de] transition-colors focus:outline-none" aria-label="Buka Menu Navigasi" type="button">
+        <svg id="hamburger-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+        <svg id="close-icon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Mobile Navigation Dropdown Drawer -->
+    <div id="mobile-nav-menu" class="hidden md:hidden border-t border-[#e5e5dc] bg-[#fafaf5] px-4 py-4 space-y-2 shadow-lg transition-all duration-200">
+      <a class="flex items-center justify-between px-4 py-3 rounded-xl font-bold text-white bg-forest-800 shadow-sm" href="index.html">
+        <span>Beranda</span>
+        <span class="text-xs">🌿</span>
+      </a>
+      <a class="flex items-center justify-between px-4 py-3 rounded-xl font-semibold text-stone-700 hover:bg-[#eeeee9] transition-colors" href="spatial.html">
+        <span>Peta Spasial</span>
+        <span class="text-[10px] uppercase px-2 py-0.5 rounded-full bg-forest-100 text-forest-800 font-bold border border-forest-200">514 Daerah</span>
+      </a>
+      <a class="flex items-center justify-between px-4 py-3 rounded-xl font-semibold text-stone-700 hover:bg-[#eeeee9] transition-colors" href="prediction.html">
+        <span>Prediksi Nilai IKP</span>
+        <span class="text-[10px] uppercase px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 font-bold border border-amber-200">AI Model</span>
+      </a>
     </div>
   </header>
   <!-- END: NavigationBar -->
 
   <main class="flex-grow">
     <!-- BEGIN: Section01Hero (Editorial Grounded & Warm) -->
-    <section class="relative bg-[#fafaf5] text-[#1a1f1c] pt-12 pb-16 lg:pt-16 lg:pb-20 border-b border-[#e5e5dc]" data-purpose="hero-section" id="overview">
+    <section class="relative bg-[#fafaf5] text-[#1a1f1c] pt-12 pb-16 lg:pt-16 lg:pb-20" data-purpose="hero-section" id="overview">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
           
@@ -128,12 +158,12 @@
             </div>
 
             <!-- Main Headline -->
-            <h1 class="font-editorial-title text-4xl sm:text-5xl lg:text-[54px] text-forest-900 font-bold tracking-tight leading-[1.12] mb-6">
+            <h1 class="font-editorial-title text-3xl sm:text-4xl lg:text-[52px] text-forest-900 font-bold tracking-tight leading-[1.15] mb-6">
               Menavigasi Ketahanan Pangan Indonesia Berbasis Data Presisi.
             </h1>
 
             <!-- Subtitle Paragraph -->
-            <p class="text-stone-600 text-base sm:text-lg leading-relaxed mb-8 max-w-xl font-normal">
+            <p class="text-stone-600 text-sm sm:text-base lg:text-lg leading-relaxed mb-8 max-w-xl font-normal">
               Inisiatif analitik terpadu yang memetakan disparitas 514 kabupaten/kota melalui 9 indikator multidimensi—mulai dari rasio gizi riil, daya beli keluarga, hingga kerentanan infrastruktur dasar pertanian.
             </p>
 
@@ -151,18 +181,18 @@
             </div>
 
             <!-- Grounded Statistics Bar -->
-            <div class="grid grid-cols-3 gap-6 pt-6 border-t border-[#e5e5dc] max-w-lg">
+            <div class="grid grid-cols-3 gap-3 sm:gap-6 pt-6 border-t border-[#e5e5dc] max-w-lg">
               <div>
-                <div class="font-editorial-title font-bold text-2xl sm:text-3xl text-forest-900 leading-none mb-1">514</div>
-                <div class="text-xs text-stone-600 font-medium">Kabupaten / Kota</div>
+                <div class="font-editorial-title font-bold text-xl sm:text-3xl text-forest-900 leading-none mb-1">514</div>
+                <div class="text-[11px] sm:text-xs text-stone-600 font-medium">Kabupaten / Kota</div>
               </div>
               <div>
-                <div class="font-editorial-title font-bold text-2xl sm:text-3xl text-forest-900 leading-none mb-1">38</div>
-                <div class="text-xs text-stone-600 font-medium">Provinsi Terhubung</div>
+                <div class="font-editorial-title font-bold text-xl sm:text-3xl text-forest-900 leading-none mb-1">38</div>
+                <div class="text-[11px] sm:text-xs text-stone-600 font-medium">Provinsi Terhubung</div>
               </div>
               <div>
-                <div class="font-editorial-title font-bold text-2xl sm:text-3xl text-forest-900 leading-none mb-1">97.7%</div>
-                <div class="text-xs text-stone-600 font-medium">Akurasi Validasi R²</div>
+                <div class="font-editorial-title font-bold text-xl sm:text-3xl text-forest-900 leading-none mb-1">97.7%</div>
+                <div class="text-[11px] sm:text-xs text-stone-600 font-medium">Akurasi Validasi R²</div>
               </div>
             </div>
           </div>
@@ -190,7 +220,7 @@
     <!-- END: Section01Hero -->
 
     <!-- BEGIN: Section02SpatialPreview (Interactive GIS Mini Map Preview) -->
-    <section class="py-16 lg:py-20 bg-[#f5f5ee] border-b border-[#e5e5dc]" data-purpose="spatial-map-preview-showcase" id="peta-spasial">
+    <section class="py-16 lg:py-20 bg-[#fafaf5]" data-purpose="spatial-map-preview-showcase" id="peta-spasial">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="bg-white rounded-3xl border border-[#e5e5dc] shadow-md overflow-hidden grid grid-cols-1 lg:grid-cols-12">
           
@@ -215,117 +245,34 @@
                 </div>
 
                 <!-- Filter Cluster Tabs -->
-                <div class="inline-flex bg-[#eeeee9] p-1 rounded-xl text-[11px] font-semibold text-stone-600 border border-[#e3e3de]" id="mini-map-filters">
-                  <button class="px-3 py-1 rounded-lg bg-white text-forest-900 shadow-xs filter-btn active" data-filter="all">Semua (514)</button>
-                  <button class="px-2.5 py-1 rounded-lg hover:text-forest-900 transition-colors filter-btn" data-filter="mandiri">Mandiri</button>
-                  <button class="px-2.5 py-1 rounded-lg hover:text-forest-900 transition-colors filter-btn" data-filter="waspada">Waspada</button>
-                  <button class="px-2.5 py-1 rounded-lg hover:text-forest-900 transition-colors filter-btn" data-filter="rentan">Rentan (3T)</button>
+                <div class="inline-flex bg-[#eeeee9] p-1 rounded-xl text-[11px] font-semibold text-stone-600 border border-[#e3e3de] overflow-x-auto max-w-full" id="mini-map-filters">
+                  <button class="px-2.5 sm:px-3 py-1 rounded-lg bg-white text-forest-900 shadow-xs filter-btn active shrink-0" data-filter="all">Semua (514)</button>
+                  <button class="px-2 sm:px-2.5 py-1 rounded-lg hover:text-forest-900 transition-colors filter-btn shrink-0" data-filter="mandiri">Mandiri</button>
+                  <button class="px-2 sm:px-2.5 py-1 rounded-lg hover:text-forest-900 transition-colors filter-btn shrink-0" data-filter="waspada">Waspada</button>
+                  <button class="px-2 sm:px-2.5 py-1 rounded-lg hover:text-forest-900 transition-colors filter-btn shrink-0" data-filter="rentan">Rentan (3T)</button>
                 </div>
               </div>
 
-              <!-- Interactive GIS Canvas Screen -->
-              <div class="relative w-full h-80 sm:h-96 bg-[#f4f4ef] rounded-2xl border border-[#e5e5dc] overflow-hidden shadow-inner group">
-                <!-- Contour & Grid Pattern Overlay -->
-                <svg class="absolute inset-0 w-full h-full opacity-35 pointer-events-none" xmlns="http://www.w3.org/2000/svg">
-                  <defs>
-                    <pattern height="28" id="gis-contour-grid" patternUnits="userSpaceOnUse" width="28">
-                      <path d="M 28 0 L 0 0 0 28" fill="none" stroke="#d5d5cb" stroke-width="0.8"></path>
-                      <circle cx="14" cy="14" fill="#1b3b2b" opacity="0.2" r="0.75"></circle>
-                    </pattern>
-                  </defs>
-                  <rect fill="url(#gis-contour-grid)" height="100%" width="100%"></rect>
-                </svg>
-
-                <!-- Top HUD Lat/Long Display Bar -->
-                <div class="absolute top-3 inset-x-3 z-10 flex items-center justify-between pointer-events-none">
-                  <div class="inline-flex items-center gap-2 bg-white/95 backdrop-blur-md px-3 py-1 rounded-lg border border-[#e5e5dc] text-[10px] text-stone-600 font-medium shadow-xs">
-                    <span class="w-2 h-2 rounded-full bg-forest-800 animate-pulse"></span>
+              <!-- Real Leaflet Mini-Map Container -->
+              <div class="relative w-full h-72 sm:h-96 rounded-2xl border border-[#e5e5dc] overflow-hidden shadow-inner" id="mini-leaflet-map-wrapper">
+                <div id="mini-spatial-map" style="width:100%;height:100%;border-radius:inherit;"></div>
+                <!-- HUD overlay -->
+                <div class="absolute top-2.5 sm:top-3 inset-x-2.5 sm:inset-x-3 z-[500] flex flex-wrap items-center justify-between gap-1.5 pointer-events-none">
+                  <div class="inline-flex items-center gap-1.5 sm:gap-2 bg-white/95 backdrop-blur-md px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-lg border border-[#e5e5dc] text-[9px] sm:text-[10px] text-stone-600 font-medium shadow-xs">
+                    <span class="w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full bg-forest-800 animate-pulse"></span>
                     <span>EPSG:4326 WGS84</span>
                     <span class="text-stone-300">|</span>
-                    <span id="hud-coordinates">0°47'S 113°55'E</span>
+                    <span>514 Kab/Kota</span>
                   </div>
-                  <div class="flex items-center gap-1.5 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-lg border border-[#e5e5dc] text-[10px] font-bold text-forest-900 shadow-xs">
+                  <div class="hidden sm:flex items-center gap-1.5 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-lg border border-[#e5e5dc] text-[10px] font-bold text-forest-900 shadow-xs">
                     <span>9 Indikator Multidimensi</span>
                   </div>
                 </div>
-
-                <!-- Stylized Archipelago SVG Map -->
-                <svg class="w-full h-full pt-4" fill="none" viewBox="0 0 680 320" xmlns="http://www.w3.org/2000/svg" id="archipelago-svg">
-                  <!-- Sumatera -->
-                  <path class="transition-colors hover:fill-[#d2d2be]" d="M 60 70 Q 110 120 150 170 Q 140 190 125 185 Q 90 140 50 85 Z" fill="#e5ece7" stroke="#28523c" stroke-width="1.2"></path>
-                  <!-- Jawa -->
-                  <path class="transition-colors hover:fill-[#d2d2be]" d="M 140 215 Q 220 215 310 218 Q 300 232 220 230 Q 150 228 140 215 Z" fill="#e5ece7" stroke="#28523c" stroke-width="1.2"></path>
-                  <!-- Kalimantan -->
-                  <path class="transition-colors hover:fill-[#d2d2be]" d="M 200 95 Q 270 85 300 125 Q 290 175 240 175 Q 190 160 200 95 Z" fill="#fef3c7" stroke="#d97706" stroke-width="1.2"></path>
-                  <!-- Sulawesi -->
-                  <path class="transition-colors hover:fill-[#d2d2be]" d="M 330 115 Q 365 110 355 135 Q 380 145 370 165 Q 345 150 345 180 Q 330 180 330 145 Z" fill="#fef3c7" stroke="#d97706" stroke-width="1.2"></path>
-                  <!-- Bali & Nusa Tenggara -->
-                  <path class="transition-colors hover:fill-[#d2d2be]" d="M 320 226 Q 370 228 420 234 Q 410 240 330 235 Z" fill="#faeae7" stroke="#b93822" stroke-width="1.2"></path>
-                  <!-- Maluku -->
-                  <path d="M 425 125 Q 445 120 440 145 Q 425 150 425 125 Z M 430 165 Q 450 165 445 185 Q 425 180 430 165 Z" fill="#faeae7" stroke="#b93822" stroke-width="1.2"></path>
-                  <!-- Papua -->
-                  <path class="transition-colors hover:fill-[#d2d2be]" d="M 480 125 Q 560 135 630 165 Q 625 215 540 210 Q 470 185 480 125 Z" fill="#faeae7" stroke="#b93822" stroke-width="1.2"></path>
-
-                  <!-- Real Data Nodes -->
-                  <!-- Sumatera Points -->
-                  <circle class="node-point cluster-mandiri cursor-pointer" cx="85" cy="100" fill="#1b3b2b" r="6" stroke="#ffffff" stroke-width="2" data-name="Kota Banda Aceh" data-prov="Aceh" data-ikp="78.4" data-cluster="1" data-stunting="14.2%" data-poverty="5.3%"></circle>
-                  <circle class="node-point cluster-waspada cursor-pointer" cx="115" cy="140" fill="#d97706" r="5.5" stroke="#ffffff" stroke-width="2" data-name="Kab. Tapanuli Utara" data-prov="Sumatera Utara" data-ikp="64.9" data-cluster="2" data-stunting="27.8%" data-poverty="11.4%"></circle>
-                  <circle class="node-point cluster-mandiri cursor-pointer" cx="135" cy="170" fill="#1b3b2b" r="6" stroke="#ffffff" stroke-width="2" data-name="Kota Padang" data-prov="Sumatera Barat" data-ikp="77.9" data-cluster="1" data-stunting="16.1%" data-poverty="4.8%"></circle>
-
-                  <!-- Jawa Points -->
-                  <circle class="node-point cluster-mandiri cursor-pointer" cx="160" cy="220" fill="#1b3b2b" r="6.5" stroke="#ffffff" stroke-width="2" data-name="Kota Bandung" data-prov="Jawa Barat" data-ikp="83.2" data-cluster="1" data-stunting="13.8%" data-poverty="3.9%"></circle>
-                  <circle class="node-point cluster-mandiri cursor-pointer" cx="210" cy="222" fill="#1b3b2b" r="6.5" stroke="#ffffff" stroke-width="2" data-name="Kota Semarang" data-prov="Jawa Tengah" data-ikp="82.6" data-cluster="1" data-stunting="14.5%" data-poverty="4.2%"></circle>
-                  <circle class="node-point cluster-mandiri cursor-pointer" cx="255" cy="224" fill="#1b3b2b" r="6.5" stroke="#ffffff" stroke-width="2" data-name="Kab. Bojonegoro" data-prov="Jawa Timur" data-ikp="78.4" data-cluster="1" data-stunting="15.2%" data-poverty="11.9%"></circle>
-                  <circle class="node-point cluster-waspada cursor-pointer" cx="285" cy="223" fill="#d97706" r="5.5" stroke="#ffffff" stroke-width="2" data-name="Kab. Probolinggo" data-prov="Jawa Timur" data-ikp="67.5" data-cluster="2" data-stunting="23.1%" data-poverty="17.1%"></circle>
-
-                  <!-- Kalimantan Points -->
-                  <circle class="node-point cluster-waspada cursor-pointer" cx="235" cy="125" fill="#d97706" r="5.5" stroke="#ffffff" stroke-width="2" data-name="Kab. Sintang" data-prov="Kalimantan Barat" data-ikp="66.4" data-cluster="2" data-stunting="26.3%" data-poverty="9.8%"></circle>
-                  <circle class="node-point cluster-mandiri cursor-pointer" cx="270" cy="150" fill="#1b3b2b" r="6" stroke="#ffffff" stroke-width="2" data-name="Kota Balikpapan" data-prov="Kalimantan Timur" data-ikp="81.7" data-cluster="1" data-stunting="14.1%" data-poverty="2.7%"></circle>
-                  <circle class="node-point cluster-waspada cursor-pointer" cx="230" cy="155" fill="#d97706" r="5.5" stroke="#ffffff" stroke-width="2" data-name="Kab. Kotawaringin Timur" data-prov="Kalimantan Tengah" data-ikp="69.1" data-cluster="2" data-stunting="21.7%" data-poverty="6.2%"></circle>
-
-                  <!-- Sulawesi Points -->
-                  <circle class="node-point cluster-waspada cursor-pointer" cx="345" cy="130" fill="#d97706" r="5.5" stroke="#ffffff" stroke-width="2" data-name="Kab. Donggala" data-prov="Sulawesi Tengah" data-ikp="62.3" data-cluster="2" data-stunting="29.4%" data-poverty="16.3%"></circle>
-                  <circle class="node-point cluster-mandiri cursor-pointer" cx="340" cy="165" fill="#1b3b2b" r="6" stroke="#ffffff" stroke-width="2" data-name="Kota Makassar" data-prov="Sulawesi Selatan" data-ikp="80.5" data-cluster="1" data-stunting="16.2%" data-poverty="5.1%"></circle>
-
-                  <!-- Bali & Nusa Tenggara -->
-                  <circle class="node-point cluster-mandiri cursor-pointer" cx="330" cy="230" fill="#1b3b2b" r="6" stroke="#ffffff" stroke-width="2" data-name="Kab. Badung" data-prov="Bali" data-ikp="85.3" data-cluster="1" data-stunting="8.7%" data-poverty="2.4%"></circle>
-                  <circle class="node-point cluster-rentan cursor-pointer" cx="380" cy="232" fill="#b93822" r="6.5" stroke="#ffffff" stroke-width="2" data-name="Kab. Timor Tengah Selatan" data-prov="Nusa Tenggara Timur" data-ikp="49.8" data-cluster="3" data-stunting="38.7%" data-poverty="26.1%"></circle>
-                  <circle class="node-point cluster-rentan cursor-pointer" cx="405" cy="233" fill="#b93822" r="6.5" stroke="#ffffff" stroke-width="2" data-name="Kab. Belu" data-prov="Nusa Tenggara Timur" data-ikp="52.1" data-cluster="3" data-stunting="34.2%" data-poverty="15.8%"></circle>
-
-                  <!-- Maluku & Papua -->
-                  <circle class="node-point cluster-rentan cursor-pointer" cx="435" cy="140" fill="#b93822" r="6" stroke="#ffffff" stroke-width="2" data-name="Kab. Halmahera Timur" data-prov="Maluku Utara" data-ikp="55.1" data-cluster="3" data-stunting="35.7%" data-poverty="16.5%"></circle>
-                  <circle class="node-point cluster-waspada cursor-pointer" cx="435" cy="175" fill="#d97706" r="5.5" stroke="#ffffff" stroke-width="2" data-name="Kota Ambon" data-prov="Maluku" data-ikp="71.2" data-cluster="2" data-stunting="19.4%" data-poverty="5.9%"></circle>
-                  <circle class="node-point cluster-rentan cursor-pointer" cx="510" cy="155" fill="#b93822" r="6.5" stroke="#ffffff" stroke-width="2" data-name="Kab. Sorong Selatan" data-prov="Papua Barat" data-ikp="51.4" data-cluster="3" data-stunting="39.8%" data-poverty="19.8%"></circle>
-                  <circle class="node-point cluster-rentan cursor-pointer" cx="560" cy="170" fill="#b93822" r="7" stroke="#ffffff" stroke-width="2" data-name="Kab. Jayawijaya" data-prov="Papua" data-ikp="41.8" data-cluster="3" data-stunting="52.3%" data-poverty="28.2%"></circle>
-                  <circle class="node-point cluster-mandiri cursor-pointer" cx="600" cy="160" fill="#1b3b2b" r="6" stroke="#ffffff" stroke-width="2" data-name="Kota Jayapura" data-prov="Papua" data-ikp="76.9" data-cluster="1" data-stunting="15.8%" data-poverty="5.9%"></circle>
-                </svg>
-
-                <!-- Dynamic Floating HUD Pin Card -->
-                <div class="absolute top-14 left-6 bg-white/95 backdrop-blur-md rounded-xl p-3.5 border border-[#e5e5dc] shadow-md text-xs max-w-[240px] transition-all" id="interactive-map-card">
-                  <div class="flex items-center justify-between mb-1.5">
-                    <span class="text-[9px] uppercase font-bold text-stone-500 flex items-center gap-1.5" id="pin-province">
-                      <span class="w-1.5 h-1.5 rounded-full bg-forest-800" id="pin-dot"></span> Jawa Timur
-                    </span>
-                    <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800" id="pin-cluster-badge">Klaster 1</span>
-                  </div>
-                  <div class="font-editorial-title font-bold text-forest-900 text-sm mb-1" id="pin-name">Kab. Bojonegoro</div>
-                  <div class="grid grid-cols-2 gap-2 text-[11px] pt-2 border-t border-stone-100">
-                    <div>
-                      <span class="text-stone-500 text-[10px] block">Skor IKP:</span>
-                      <span class="font-bold text-forest-900 font-mono" id="pin-ikp">78.4</span>
-                    </div>
-                    <div>
-                      <span class="text-stone-500 text-[10px] block">Stunting:</span>
-                      <span class="font-bold text-stone-800 font-mono" id="pin-stunting">15.2%</span>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Bottom Scale Info -->
-                <div class="absolute bottom-3 left-3 bg-white/95 backdrop-blur-md px-2.5 py-1.5 rounded-xl border border-[#e5e5dc] shadow-xs flex items-center gap-2 text-[10px] font-semibold text-stone-700">
-                  <span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-forest-800"></span> 514 Poligon Kab/Kota</span>
+                <!-- Bottom scale info -->
+                <div class="absolute bottom-2.5 sm:bottom-3 left-2.5 sm:left-3 z-[500] bg-white/95 backdrop-blur-md px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl border border-[#e5e5dc] shadow-xs flex items-center gap-1.5 sm:gap-2 text-[9px] sm:text-[10px] font-semibold text-stone-700">
+                  <span class="flex items-center gap-1"><span class="w-1.5 sm:w-2 h-1.5 sm:h-2 rounded bg-forest-800"></span> K-Medoids Clustering</span>
                   <span class="text-stone-300">•</span>
-                  <span class="text-stone-500 font-normal">Terkalibrasi BPS/Bapanas</span>
+                  <span class="text-stone-500 font-normal">BPS 2024</span>
                 </div>
               </div>
             </div>
@@ -340,10 +287,10 @@
                   <span class="w-2.5 h-2.5 rounded-full bg-amber-600"></span> Waspada (60 - 75)
                 </span>
                 <span class="inline-flex items-center gap-1.5 text-stone-700 font-semibold">
-                  <span class="w-2.5 h-2.5 rounded-full bg-rose-600"></span> Rentan (&lt; 60)
+                  <span class="w-2.5 h-2.5 rounded-full bg-[#b93822]"></span> Rentan (&lt; 60)
                 </span>
               </div>
-              <span class="text-[11px] text-stone-500 italic">Interaktif • Klik titik koordinat di peta</span>
+              <span class="text-[11px] text-stone-500 italic">Interaktif • Arahkan kursor ke peta</span>
             </div>
           </div>
 
@@ -428,7 +375,7 @@
     <!-- END: Section02SpatialPreview -->
 
     <!-- BEGIN: Section03ThreePillars -->
-    <section class="py-20 bg-[#fafaf5] border-b border-[#e5e5dc]" data-purpose="food-security-pillars" id="pillars">
+    <section class="py-20 bg-[#fafaf5]" data-purpose="food-security-pillars" id="pillars">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="bg-white rounded-3xl border border-[#e5e5dc] shadow-sm overflow-hidden">
           <div class="grid grid-cols-1 lg:grid-cols-12">
@@ -617,7 +564,7 @@
     <!-- END: Section03ThreePillars -->
 
     <!-- BEGIN: Section04Clustering -->
-    <section class="py-20 lg:py-24 bg-[#fafaf5] border-b border-[#e5e5dc] relative overflow-hidden" data-purpose="regional-clustering" id="clustering">
+    <section class="py-20 lg:py-24 bg-[#fafaf5] relative overflow-hidden" data-purpose="regional-clustering" id="clustering">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-16">
           <div class="max-w-3xl">
@@ -835,7 +782,8 @@
     <!-- END: Section04Clustering -->
 
     <!-- BEGIN: Section05Workflow -->
-    <section class="py-20 bg-[#f5f5ee] border-b border-[#e5e5dc]" data-purpose="pipeline-workflow">
+    <!-- BEGIN: Section05 Pipeline -->
+    <section class="py-20 bg-[#fafaf5]" data-purpose="pipeline-workflow">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-16">
           <div class="max-w-2xl">
@@ -971,7 +919,8 @@
     <!-- END: Section05Workflow -->
 
     <!-- BEGIN: Section06ModelPerformance -->
-    <section class="py-20 bg-[#fafaf5] border-b border-[#e5e5dc]" data-purpose="performance-validation" id="performance">
+    <!-- BEGIN: Section06 Performance -->
+    <section class="py-20 bg-[#fafaf5]" data-purpose="performance-validation" id="performance">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
           <!-- Dark Forest Green Card -->
@@ -1149,95 +1098,143 @@
   </footer>
   <!-- END: Unified Footer -->
 
-  <!-- BEGIN: Interactive Mini Map Script -->
+  <!-- Leaflet JS for mini-map -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <!-- Data modules needed for mini-map -->
+  <script src="js/data/clusters.js"></script>
+  <script src="js/data/indonesia-kabupaten.js"></script>
+
+  <!-- BEGIN: Mini Leaflet Map Script -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const filterButtons = document.querySelectorAll('#mini-map-filters .filter-btn');
-      const nodes = document.querySelectorAll('.node-point');
-      const cardEl = document.getElementById('interactive-map-card');
-      const pinName = document.getElementById('pin-name');
-      const pinProv = document.getElementById('pin-province');
-      const pinIkp = document.getElementById('pin-ikp');
-      const pinStunting = document.getElementById('pin-stunting');
-      const pinBadge = document.getElementById('pin-cluster-badge');
-      const pinDot = document.getElementById('pin-dot');
+      const miniMapEl = document.getElementById('mini-spatial-map');
+      if (!miniMapEl) return;
 
-      // Filter Buttons Interaction
+      // Cluster colours matching spatial.html
+      const CLUSTER_COLORS = { 1: '#1b3b2b', 2: '#d97706', 3: '#b93822' };
+      const CLUSTER_LABELS = { 1: 'Mandiri', 2: 'Waspada', 3: 'Rentan (3T)' };
+
+      // Build kabupaten lookups
+      const kabLookup = {};
+      const nameLookup = {};
+      if (typeof KABUPATEN_DATA !== 'undefined') {
+        KABUPATEN_DATA.forEach(d => {
+          kabLookup[d.id] = d;
+          const clean = d.name.toLowerCase().replace(/kabupaten|kota/g, '').trim();
+          nameLookup[clean] = d;
+        });
+      }
+
+      function getFeatureData(feature) {
+        if (!feature || !feature.properties) return null;
+        const id = feature.properties.id || feature.properties.code || feature.properties.kode_kab;
+        if (id && kabLookup[id]) return kabLookup[id];
+        const name = (feature.properties.kabkot || '').toLowerCase().trim();
+        if (name && nameLookup[name]) return nameLookup[name];
+        return null;
+      }
+
+      // Initialize mini Leaflet map
+      const miniMap = L.map('mini-spatial-map', {
+        center: [-2.5, 118.0],
+        zoom: 4,
+        minZoom: 4,
+        maxZoom: 8,
+        zoomControl: false,
+        attributionControl: false,
+        dragging: true,
+        scrollWheelZoom: false,
+        doubleClickZoom: false
+      });
+
+      // Light Neutral Canvas Basemap
+      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 16,
+        opacity: 0.92
+      }).addTo(miniMap);
+
+      let currentFilter = 'all'; // 'all' | 'mandiri' (1) | 'waspada' (2) | 'rentan' (3)
+      let miniGeoLayer = null;
+
+      function getMiniFeatureStyle(feature) {
+        const data = getFeatureData(feature);
+        const cluster = data ? data.cluster : null;
+
+        let isMatch = true;
+        if (currentFilter === 'mandiri' && cluster !== 1) isMatch = false;
+        if (currentFilter === 'waspada' && cluster !== 2) isMatch = false;
+        if (currentFilter === 'rentan' && cluster !== 3) isMatch = false;
+
+        return {
+          fillColor: isMatch && cluster ? CLUSTER_COLORS[cluster] : '#dedecc',
+          fillOpacity: isMatch && cluster ? 0.82 : 0.25,
+          color: '#ffffff',
+          weight: 0.5,
+          opacity: 0.7
+        };
+      }
+
+      // Render GeoJSON choropleth if data is available
+      if (typeof INDONESIA_GEOJSON !== 'undefined') {
+        miniGeoLayer = L.geoJSON(INDONESIA_GEOJSON, {
+          style: getMiniFeatureStyle,
+          onEachFeature: function(feature, layer) {
+            const data = getFeatureData(feature);
+            if (data) {
+              layer.bindTooltip(
+                `<div style="font-family:Plus Jakarta Sans,sans-serif;font-size:11px;line-height:1.4;">` +
+                `<strong style="color:#1b3b2b;font-size:12px;">${data.name}</strong><br>` +
+                `<span style="display:inline-block;padding:1px 6px;border-radius:4px;background:${CLUSTER_COLORS[data.cluster]};color:#fff;font-weight:700;font-size:10px;margin-top:2px;">Klaster ${data.cluster} • ${CLUSTER_LABELS[data.cluster]}</span><br>` +
+                `<span style="color:#666;font-size:11px;">Skor IKP: <strong style="color:#111;">${Number(data.ikp).toFixed(1)}</strong> / 100</span>` +
+                `</div>`,
+                { sticky: true, className: 'leaflet-tooltip-mini' }
+              );
+            }
+          }
+        }).addTo(miniMap);
+      }
+
+      // Mini-map cluster filter buttons
+      const filterButtons = document.querySelectorAll('#mini-map-filters .filter-btn');
       filterButtons.forEach(btn => {
         btn.addEventListener('click', () => {
           filterButtons.forEach(b => {
-            b.classList.remove('bg-white', 'text-forest-900', 'shadow-xs');
+            b.classList.remove('bg-white', 'text-forest-900', 'shadow-xs', 'active');
           });
-          btn.classList.add('bg-white', 'text-forest-900', 'shadow-xs');
+          btn.classList.add('bg-white', 'text-forest-900', 'shadow-xs', 'active');
+          currentFilter = btn.getAttribute('data-filter') || 'all';
 
-          const filter = btn.getAttribute('data-filter');
-          nodes.forEach(node => {
-            if (filter === 'all') {
-              node.style.opacity = '1';
-              node.style.pointerEvents = 'auto';
-            } else if (filter === 'mandiri') {
-              if (node.classList.contains('cluster-mandiri')) {
-                node.style.opacity = '1';
-                node.style.pointerEvents = 'auto';
-              } else {
-                node.style.opacity = '0.15';
-                node.style.pointerEvents = 'none';
-              }
-            } else if (filter === 'waspada') {
-              if (node.classList.contains('cluster-waspada')) {
-                node.style.opacity = '1';
-                node.style.pointerEvents = 'auto';
-              } else {
-                node.style.opacity = '0.15';
-                node.style.pointerEvents = 'none';
-              }
-            } else if (filter === 'rentan') {
-              if (node.classList.contains('cluster-rentan')) {
-                node.style.opacity = '1';
-                node.style.pointerEvents = 'auto';
-              } else {
-                node.style.opacity = '0.15';
-                node.style.pointerEvents = 'none';
-              }
-            }
-          });
-        });
-      });
-
-      // Interactive Node Click / Hover on Map
-      nodes.forEach(node => {
-        node.addEventListener('click', () => {
-          const name = node.getAttribute('data-name');
-          const prov = node.getAttribute('data-prov');
-          const ikp = node.getAttribute('data-ikp');
-          const cluster = node.getAttribute('data-cluster');
-          const stunting = node.getAttribute('data-stunting');
-
-          pinName.innerText = name;
-          pinProv.innerHTML = `<span class="w-1.5 h-1.5 rounded-full ${cluster === '1' ? 'bg-forest-800' : cluster === '2' ? 'bg-amber-600' : 'bg-rose-600'}" id="pin-dot"></span> ${prov}`;
-          pinIkp.innerText = ikp;
-          pinStunting.innerText = stunting;
-
-          if (cluster === '1') {
-            pinBadge.className = 'px-2 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800';
-            pinBadge.innerText = 'Klaster 1 (Mandiri)';
-            pinIkp.className = 'font-bold text-forest-900 font-mono';
-          } else if (cluster === '2') {
-            pinBadge.className = 'px-2 py-0.5 rounded text-[9px] font-bold bg-amber-100 text-amber-800';
-            pinBadge.innerText = 'Klaster 2 (Waspada)';
-            pinIkp.className = 'font-bold text-amber-700 font-mono';
-          } else {
-            pinBadge.className = 'px-2 py-0.5 rounded text-[9px] font-bold bg-rose-100 text-rose-800';
-            pinBadge.innerText = 'Klaster 3 (Prioritas 3T)';
-            pinIkp.className = 'font-bold text-rose-700 font-mono';
+          if (miniGeoLayer) {
+            miniGeoLayer.setStyle(getMiniFeatureStyle);
           }
-
-          cardEl.classList.remove('animate-fade-in');
-          void cardEl.offsetWidth; // trigger reflow
-          cardEl.classList.add('animate-fade-in');
         });
       });
+
+      // Mobile Menu Toggle
+      const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+      const mobileNavMenu = document.getElementById('mobile-nav-menu');
+      const hamburgerIcon = document.getElementById('hamburger-icon');
+      const closeIcon = document.getElementById('close-icon');
+
+      if (mobileMenuBtn && mobileNavMenu) {
+        mobileMenuBtn.addEventListener('click', () => {
+          const isClosed = mobileNavMenu.classList.contains('hidden');
+          if (isClosed) {
+            mobileNavMenu.classList.remove('hidden');
+            hamburgerIcon.classList.add('hidden');
+            closeIcon.classList.remove('hidden');
+          } else {
+            mobileNavMenu.classList.add('hidden');
+            hamburgerIcon.classList.remove('hidden');
+            closeIcon.classList.add('hidden');
+          }
+        });
+      }
     });
   </script>
+  <!-- END: Mini Leaflet Map Script -->
+
 </body>
 </html>

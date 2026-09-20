@@ -22,9 +22,7 @@ const AgrisightSidebar = (function () {
       compareBtnEl: document.getElementById('btn-sidebar-add-compare'),
       closeBtnEl: document.getElementById('btn-sidebar-close'),
       indicatorsListEl: document.getElementById('sidebar-indicators-list'),
-      chartCanvasId: 'sidebar-chart-canvas',
-      btnAnalysis: document.getElementById('btn-sidebar-full-analysis'),
-      btnWhatif: document.getElementById('btn-sidebar-sim-whatif')
+      chartCanvasId: 'sidebar-chart-canvas'
     };
   }
 
@@ -36,17 +34,6 @@ const AgrisightSidebar = (function () {
       els.closeBtnEl.addEventListener('click', close);
     }
 
-    // Chart tab switch buttons
-    const tabBtns = document.querySelectorAll('.chart-tab-btn');
-    tabBtns.forEach(btn => {
-      btn.addEventListener('click', function () {
-        tabBtns.forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
-        activeChartTab = this.getAttribute('data-chart') || 'radar';
-        updateChartDisplay();
-      });
-    });
-
     // Add to Compare button in panel
     if (els.compareBtnEl) {
       els.compareBtnEl.addEventListener('click', function () {
@@ -57,26 +44,6 @@ const AgrisightSidebar = (function () {
           AgrisightComparison.addRegion(currentRegency);
         }
         updateCompareButtonState();
-      });
-    }
-
-    // In-depth Analysis Modal Trigger
-    if (els.btnAnalysis) {
-      els.btnAnalysis.addEventListener('click', function () {
-        if (!currentRegency) return;
-        if (window.AgrisightAnalysisModal) {
-          AgrisightAnalysisModal.open(currentRegency);
-        }
-      });
-    }
-
-    // What-If Simulation Modal Trigger
-    if (els.btnWhatif) {
-      els.btnWhatif.addEventListener('click', function () {
-        if (!currentRegency) return;
-        if (window.AgrisightWhatIfModal) {
-          AgrisightWhatIfModal.open(currentRegency);
-        }
       });
     }
   }
@@ -164,12 +131,8 @@ const AgrisightSidebar = (function () {
     if (!currentRegency) return;
     const els = getElements();
     if (!document.getElementById(els.chartCanvasId)) return;
-
-    if (activeChartTab === 'bar') {
-      AgrisightCharts.renderBarChart(els.chartCanvasId, currentRegency);
-    } else {
-      AgrisightCharts.renderRadarChart(els.chartCanvasId, currentRegency);
-    }
+    // Always render radar chart (tab buttons removed)
+    AgrisightCharts.renderRadarChart(els.chartCanvasId, currentRegency);
   }
 
   function renderIndicatorsBreakdown(data) {

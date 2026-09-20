@@ -47,9 +47,12 @@ const AgrisightMap = (function () {
       maxZoom: 10,
       maxBounds: INDO_BOUNDS,
       maxBoundsViscosity: 1.0, // Strict bounce-back boundary lock to Indonesia
-      zoomControl: true,
+      zoomControl: false, // Disabled default topleft position to avoid overlap with search toolbar
       attributionControl: false
     });
+
+    // Add zoom control to bottomright to avoid overlapping with filter-toolbar at top-left
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
 
     // Light Neutral Canvas Basemap (Esri World Light Gray - 100% Free, No API Key, Clean, Reliable)
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {

@@ -26,11 +26,34 @@ const AgrisightApp = (function () {
 
     // Setup Navigation Tabs & Modals
     setupNavigation();
+    setupMobileMenu();
 
     // Check if initial hash or query params exist
     checkUrlParams();
 
     showToast('Peta Ketahanan Pangan 514 Kabupaten/Kota berhasil dimuat.', 'success');
+  }
+
+  function setupMobileMenu() {
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileNavMenu = document.getElementById('mobile-nav-menu');
+    const hamburgerIcon = document.getElementById('hamburger-icon');
+    const closeIcon = document.getElementById('close-icon');
+
+    if (mobileMenuBtn && mobileNavMenu) {
+      mobileMenuBtn.addEventListener('click', function () {
+        const isClosed = mobileNavMenu.classList.contains('hidden');
+        if (isClosed) {
+          mobileNavMenu.classList.remove('hidden');
+          if (hamburgerIcon) hamburgerIcon.classList.add('hidden');
+          if (closeIcon) closeIcon.classList.remove('hidden');
+        } else {
+          mobileNavMenu.classList.add('hidden');
+          if (hamburgerIcon) hamburgerIcon.classList.remove('hidden');
+          if (closeIcon) closeIcon.classList.add('hidden');
+        }
+      });
+    }
   }
 
   function setupNavigation() {

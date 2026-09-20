@@ -92,7 +92,7 @@
         </div>
       </a>
 
-      <!-- 3 Main Navigation Features -->
+      <!-- Desktop Navigation Menu -->
       <nav class="hidden md:flex items-center space-x-1.5 bg-[#eeeee9] px-2.5 py-1.5 rounded-full border border-[#e3e3de] text-xs font-semibold text-stone-700">
         <a class="px-4 py-2 rounded-full hover:text-forest-900 hover:bg-white/80 transition-colors text-stone-700" href="index.html">
           Beranda
@@ -106,6 +106,32 @@
           <span class="text-[9px] uppercase px-1.5 py-0.5 rounded-full bg-white/20 text-white font-bold">AI Model</span>
         </a>
       </nav>
+
+      <!-- Mobile Menu Hamburger Button -->
+      <button id="mobile-menu-btn" class="md:hidden flex items-center justify-center w-10 h-10 rounded-xl bg-[#eeeee9] text-stone-700 hover:text-forest-900 border border-[#e3e3de] transition-colors focus:outline-none" aria-label="Buka Menu Navigasi" type="button">
+        <svg id="hamburger-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+        <svg id="close-icon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Mobile Navigation Dropdown Drawer -->
+    <div id="mobile-nav-menu" class="hidden md:hidden border-t border-[#e5e5dc] bg-[#fafaf5] px-4 py-4 space-y-2 shadow-lg transition-all duration-200">
+      <a class="flex items-center justify-between px-4 py-3 rounded-xl font-semibold text-stone-700 hover:bg-[#eeeee9] transition-colors" href="index.html">
+        <span>Beranda</span>
+        <span class="text-xs">🌿</span>
+      </a>
+      <a class="flex items-center justify-between px-4 py-3 rounded-xl font-semibold text-stone-700 hover:bg-[#eeeee9] transition-colors" href="spatial.html">
+        <span>Peta Spasial</span>
+        <span class="text-[10px] uppercase px-2 py-0.5 rounded-full bg-forest-100 text-forest-800 font-bold border border-forest-200">514 Daerah</span>
+      </a>
+      <a class="flex items-center justify-between px-4 py-3 rounded-xl font-bold text-white bg-forest-800 shadow-sm" href="prediction.html">
+        <span>Prediksi Nilai IKP</span>
+        <span class="text-[10px] uppercase px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 font-bold border border-amber-200">AI Model</span>
+      </a>
     </div>
   </header>
   <!-- END: NavigationBar -->
@@ -146,13 +172,13 @@
 
         <!-- WORKSPACE SWITCHER TABS -->
         <div class="p-2 rounded-2xl bg-[#eeeee9] border border-[#e3e3de] flex flex-col sm:flex-row items-center justify-between gap-3 mt-2">
-          <div class="grid grid-cols-2 w-full sm:w-auto gap-2" role="tablist">
-            <button aria-selected="true" class="px-5 py-3 rounded-xl bg-forest-800 text-white text-xs sm:text-sm font-bold transition-all duration-200 shadow-sm flex items-center justify-center sm:justify-start gap-2.5 text-left" id="tab-btn-predict" onclick="switchWorkspaceTab('predict')" role="tab" type="button">
-              <span class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs">01</span>
+          <div class="grid grid-cols-1 sm:grid-cols-2 w-full sm:w-auto gap-2" role="tablist">
+            <button aria-selected="true" class="px-4 sm:px-5 py-3 rounded-xl bg-forest-800 text-white text-xs sm:text-sm font-bold transition-all duration-200 shadow-sm flex items-center justify-center sm:justify-start gap-2.5 text-left" id="tab-btn-predict" onclick="switchWorkspaceTab('predict')" role="tab" type="button">
+              <span class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs shrink-0">01</span>
               <span>Prediksi Nilai IKP &amp; Klaster</span>
             </button>
-            <button aria-selected="false" class="px-5 py-3 rounded-xl bg-white hover:bg-stone-50 text-stone-700 hover:text-forest-900 text-xs sm:text-sm font-bold transition-all duration-200 flex items-center justify-center sm:justify-start gap-2.5 text-left border border-[#e3e3de]" id="tab-btn-optimize" onclick="switchWorkspaceTab('optimize')" role="tab" type="button">
-              <span class="w-6 h-6 rounded-full bg-[#f4f4ef] flex items-center justify-center text-xs text-stone-700">02</span>
+            <button aria-selected="false" class="px-4 sm:px-5 py-3 rounded-xl bg-white hover:bg-stone-50 text-stone-700 hover:text-forest-900 text-xs sm:text-sm font-bold transition-all duration-200 flex items-center justify-center sm:justify-start gap-2.5 text-left border border-[#e3e3de]" id="tab-btn-optimize" onclick="switchWorkspaceTab('optimize')" role="tab" type="button">
+              <span class="w-6 h-6 rounded-full bg-[#f4f4ef] flex items-center justify-center text-xs text-stone-700 shrink-0">02</span>
               <span>Optimasi Skenario Target IKP</span>
             </button>
           </div>
@@ -573,7 +599,7 @@
                 <div>
                   <div class="flex items-center gap-2 text-forest-800 mb-3">
                     <span class="material-symbols-outlined text-[20px]">policy</span>
-                    <span class="text-xs uppercase font-bold tracking-wider">Catatan Kebijakan</span>
+                    <span class="text-xs uppercase font-bold tracking-wider">Rekomendasi Kebijakan</span>
                   </div>
                   <p class="text-xs sm:text-sm text-stone-700 leading-relaxed">
                     Untuk kebutuhan formulasi target intervensi yang diinginkan secara inverse, gunakan <strong class="text-forest-900 font-bold">Modul 02: Optimasi Skenario Target IKP</strong>.
@@ -1258,6 +1284,29 @@
         optResults.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
     }
+
+    // Mobile Menu Toggle Listener
+    document.addEventListener('DOMContentLoaded', () => {
+      const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+      const mobileNavMenu = document.getElementById('mobile-nav-menu');
+      const hamburgerIcon = document.getElementById('hamburger-icon');
+      const closeIcon = document.getElementById('close-icon');
+
+      if (mobileMenuBtn && mobileNavMenu) {
+        mobileMenuBtn.addEventListener('click', () => {
+          const isClosed = mobileNavMenu.classList.contains('hidden');
+          if (isClosed) {
+            mobileNavMenu.classList.remove('hidden');
+            if (hamburgerIcon) hamburgerIcon.classList.add('hidden');
+            if (closeIcon) closeIcon.classList.remove('hidden');
+          } else {
+            mobileNavMenu.classList.add('hidden');
+            if (hamburgerIcon) hamburgerIcon.classList.remove('hidden');
+            if (closeIcon) closeIcon.classList.add('hidden');
+          }
+        });
+      }
+    });
   </script>
 </body>
 
