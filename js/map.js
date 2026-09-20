@@ -51,10 +51,11 @@ const AgrisightMap = (function () {
       attributionControl: false
     });
 
-    // Dark Basemap (Esri World Dark Gray Canvas - No API Key, 100% Reliable & Clean)
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+    // Light Natural Basemap (CartoDB Positron - Clean, fast, crisp light canvas)
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
       maxZoom: 16,
-      opacity: 0.85
+      subdomains: 'abcd',
+      opacity: 0.95
     }).addTo(map);
 
     // Map click background clears selection
@@ -110,17 +111,59 @@ const AgrisightMap = (function () {
 
   function getFeatureStyle(feature) {
     const data = getFeatureData(feature);
-    const c = data.cluster;
-    const fillColor = c === 1 ? '#10b981' : c === 2 ? '#f59e0b' : '#f43f5e';
+    let fillColor = '#dedecc';
+    let fillOpacity = 0.82;
+
+    if (activeMetric === 'cluster') {
+      const c = data.cluster;
+      fillColor = c === 1 ? '#1b3b2b' : c === 2 ? '#d97706' : '#b93822';
+    } else if (activeMetric === 'ikp') {
+      fillColor = getContinuousColor(data.ikp, 30, 90, true);
+    } else if (INDICATORS_META[activeMetric]) {
+      const meta = INDICATORS_META[activeMetric];
+      fillColor = getContinuousColor(data[activeMetric], meta.min, meta.max, meta.higherIsBetter);
+    }
 
     return {
       fillColor: fillColor,
-      weight: 1,
+      weight: 0.8,
       opacity: 0.9,
-      color: 'rgba(15, 23, 42, 0.95)',
-      fillOpacity: 0.75,
+      color: '#ffffff',
+      fillOpacity: fillOpacity,
       className: 'geo-kabupaten-polygon'
     };
+  }
+
+  function getContinuousColor(val, min, max, higherIsBetter) {
+    let t = (val - min) / (max - min);
+    t = Math.max(0, Math.min(1, t));
+    if (!higherIsBetter) t = 1 - t; // invert so higher green = healthier
+
+    // Color ramp: Terracotta -> Amber -> Forest Green
+    if (t < 0.5) {
+      const subT = t / 0.5;
+      return interpolateColor('#b93822', '#d97706', subT);
+    } else {
+      const subT = (t - 0.5) / 0.5;
+      return interpolateColor('#d97706', '#1b3b2b', subT);
+    }
+  }
+
+  function interpolateColor(color1, color2, factor) {
+    const hex = (c) => parseInt(c.slice(1), 16);
+    const r1 = (hex(color1) >> 16) & 255;
+    const g1 = (hex(color1) >> 8) & 255;
+    const b1 = hex(color1) & 255;
+
+    const r2 = (hex(color2) >> 16) & 255;
+    const g2 = (hex(color2) >> 8) & 255;
+    const b2 = hex(color2) & 255;
+
+    const r = Math.round(r1 + factor * (r2 - r1));
+    const g = Math.round(g1 + factor * (g2 - g1));
+    const b = Math.round(b1 + factor * (b2 - b1));
+
+    return `rgb(${r}, ${g}, ${b})`;
   }
 
   function onEachFeature(feature, layer) {
@@ -190,7 +233,7 @@ const AgrisightMap = (function () {
     // Pan smoothly to polygon bounds
     map.fitBounds(layer.getBounds(), {
       paddingTopLeft: [50, 50],
-      paddingBottomRight: [AgrisightSidebar && AgrisightSidebar.isOpen() ? 480 : 50, 50],
+      paddingBottomRight: [AgrisightSidebar.isOpen() ? 480 : 50, 50],
       maxZoom: 9,
       animate: true,
       duration: 0.6
@@ -215,6 +258,14 @@ const AgrisightMap = (function () {
     } else {
       AgrisightApp.showToast('Kabupaten/Kota tidak ditemukan di peta.', 'error');
     }
+  }
+
+  function setMetricMode(mode) {
+    activeMetric = mode;
+    if (geojsonLayer) {
+      geojsonLayer.setStyle(getFeatureStyle);
+    }
+    updateLegend();
   }
 
   function applyFilters({ province, cluster, query }) {
@@ -268,49 +319,49 @@ const AgrisightMap = (function () {
     const legendItemsEl = document.getElementById('legend-items');
     if (!legendTitleEl || !legendItemsEl) return;
 
-    legendTitleEl.textContent = 'Cluster K-Medoids';
-    const c1Count = KABUPATEN_DATA.filter(k => k.cluster === 1).length;
-    const c2Count = KABUPATEN_DATA.filter(k => k.cluster === 2).length;
-    const c3Count = KABUPATEN_DATA.filter(k => k.cluster === 3).length;
+    if (activeMetric === 'cluster') {
+      legendTitleEl.textContent = 'Klaster K-Medoids';
+      const c1Count = KABUPATEN_DATA.filter(k => k.cluster === 1).length;
+      const c2Count = KABUPATEN_DATA.filter(k => k.cluster === 2).length;
+      const c3Count = KABUPATEN_DATA.filter(k => k.cluster === 3).length;
 
-    legendItemsEl.innerHTML = `
-      <div class="legend-item" data-cluster="1" title="Filter Cluster 1">
-        <div class="legend-item-left">
-          <span class="legend-color-box" style="background-color:#10b981;"></span>
-          <span class="legend-item-name">Cluster 1: Tahan Pangan Tinggi</span>
+      legendItemsEl.innerHTML = `
+        <div class="legend-item" data-cluster="1">
+          <div class="legend-item-left">
+            <span class="legend-color-box" style="background-color:#1b3b2b;"></span>
+            <span class="legend-item-name">Klaster 1: Mandiri & Resilien</span>
+          </div>
+          <span class="legend-item-count">${c1Count}</span>
         </div>
-        <span class="legend-item-count">${c1Count}</span>
-      </div>
-      <div class="legend-item" data-cluster="2" title="Filter Cluster 2">
-        <div class="legend-item-left">
-          <span class="legend-color-box" style="background-color:#f59e0b;"></span>
-          <span class="legend-item-name">Cluster 2: Tahan Pangan Sedang</span>
+        <div class="legend-item" data-cluster="2">
+          <div class="legend-item-left">
+            <span class="legend-color-box" style="background-color:#d97706;"></span>
+            <span class="legend-item-name">Klaster 2: Berkembang & Waspada</span>
+          </div>
+          <span class="legend-item-count">${c2Count}</span>
         </div>
-        <span class="legend-item-count">${c2Count}</span>
-      </div>
-      <div class="legend-item" data-cluster="3" title="Filter Cluster 3">
-        <div class="legend-item-left">
-          <span class="legend-color-box" style="background-color:#f43f5e;"></span>
-          <span class="legend-item-name">Cluster 3: Rentan / Prioritas</span>
+        <div class="legend-item" data-cluster="3">
+          <div class="legend-item-left">
+            <span class="legend-color-box" style="background-color:#b93822;"></span>
+            <span class="legend-item-name">Klaster 3: Rentan & Prioritas 3T</span>
+          </div>
+          <span class="legend-item-count">${c3Count}</span>
         </div>
-        <span class="legend-item-count">${c3Count}</span>
-      </div>
-    `;
-
-    // Make legend items interactive for quick cluster filtering
-    legendItemsEl.querySelectorAll('.legend-item').forEach(el => {
-      el.addEventListener('click', function () {
-        const clusterId = parseInt(this.getAttribute('data-cluster'), 10);
-        if (window.AgrisightFilters) {
-          const activeFilters = AgrisightFilters.getActiveFilters();
-          if (activeFilters.cluster === clusterId) {
-            AgrisightFilters.setClusterFilter('ALL');
-          } else {
-            AgrisightFilters.setClusterFilter(clusterId);
-          }
-        }
-      });
-    });
+      `;
+    } else {
+      const meta = INDICATORS_META[activeMetric] || INDICATORS_META.ikp;
+      legendTitleEl.textContent = meta.shortName;
+      legendItemsEl.innerHTML = `
+        <div style="display:flex; flex-direction:column; gap:6px; font-size:0.75rem;">
+          <div style="height:10px; border-radius:4px; background: linear-gradient(to right, #b93822, #d97706, #1b3b2b);"></div>
+          <div style="display:flex; justify-content:space-between; color:var(--text-secondary); font-family:var(--font-sans); font-size: 11px;">
+            <span>${meta.higherIsBetter ? 'Rendah' : 'Tinggi (Rentan)'}</span>
+            <span style="font-weight: 700; color: var(--forest-900);">Rata-rata: ${meta.nationalAvg}</span>
+            <span>${meta.higherIsBetter ? 'Tinggi (Baik)' : 'Rendah (Baik)'}</span>
+          </div>
+        </div>
+      `;
+    }
   }
 
   function bindControls() {
@@ -322,6 +373,7 @@ const AgrisightMap = (function () {
 
   return {
     init,
+    setMetricMode,
     applyFilters,
     selectKabupatenById,
     resetView,

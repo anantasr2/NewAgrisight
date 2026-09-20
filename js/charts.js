@@ -1,6 +1,6 @@
 /**
  * AGRISIGHT — Indicator Profile & Comparison Charts
- * Powered by Chart.js
+ * Powered by Chart.js (Editorial Grounded Palette)
  */
 
 const AgrisightCharts = (function () {
@@ -10,16 +10,16 @@ const AgrisightCharts = (function () {
 
   // Chart theme defaults
   const chartColors = {
-    regionFill: 'rgba(59, 130, 246, 0.25)',
-    regionBorder: '#3b82f6',
-    nationalFill: 'rgba(148, 163, 184, 0.15)',
-    nationalBorder: '#94a3b8',
-    gridLines: 'rgba(255, 255, 255, 0.08)',
-    text: '#94a3b8',
-    textPrimary: '#f8fafc',
-    cluster1: '#10b981',
-    cluster2: '#f59e0b',
-    cluster3: '#f43f5e'
+    regionFill: 'rgba(27, 59, 43, 0.25)',
+    regionBorder: '#1b3b2b',
+    nationalFill: 'rgba(120, 113, 108, 0.15)',
+    nationalBorder: '#78716c',
+    gridLines: '#e5e5dc',
+    text: '#57534e',
+    textPrimary: '#142b1f',
+    cluster1: '#1b3b2b',
+    cluster2: '#d97706',
+    cluster3: '#b93822'
   };
 
   /**
@@ -88,8 +88,8 @@ const AgrisightCharts = (function () {
           {
             label: 'Rata-rata Nasional',
             data: nationalVals,
-            backgroundColor: 'rgba(148, 163, 184, 0.3)',
-            borderColor: '#94a3b8',
+            backgroundColor: 'rgba(120, 113, 108, 0.25)',
+            borderColor: '#78716c',
             borderWidth: 1.5,
             borderRadius: 4
           }
@@ -104,16 +104,16 @@ const AgrisightCharts = (function () {
             position: 'top',
             labels: {
               color: chartColors.textPrimary,
-              font: { family: 'Outfit', size: 11, weight: '600' },
+              font: { family: 'Plus Jakarta Sans', size: 11, weight: '600' },
               boxWidth: 12,
               padding: 12
             }
           },
           tooltip: {
-            backgroundColor: 'rgba(10, 15, 29, 0.95)',
-            titleColor: '#f8fafc',
-            bodyColor: '#cbd5e1',
-            borderColor: 'rgba(255, 255, 255, 0.15)',
+            backgroundColor: '#ffffff',
+            titleColor: '#142b1f',
+            bodyColor: '#57534e',
+            borderColor: '#e5e5dc',
             borderWidth: 1,
             padding: 10,
             cornerRadius: 8
@@ -122,11 +122,11 @@ const AgrisightCharts = (function () {
         scales: {
           x: {
             grid: { color: chartColors.gridLines },
-            ticks: { color: chartColors.text, font: { family: 'Outfit', size: 10 } }
+            ticks: { color: chartColors.text, font: { family: 'Plus Jakarta Sans', size: 10 } }
           },
           y: {
             grid: { display: false },
-            ticks: { color: chartColors.textPrimary, font: { family: 'Outfit', size: 11, weight: '500' } }
+            ticks: { color: chartColors.textPrimary, font: { family: 'Plus Jakarta Sans', size: 11, weight: '600' } }
           }
         }
       }
@@ -140,7 +140,6 @@ const AgrisightCharts = (function () {
     const ctx = document.getElementById(canvasId);
     if (!ctx) return;
 
-    // Normalize indicators to 0-100 scale where 100 = best performance
     function normalize(code, val) {
       const meta = INDICATORS_META[code];
       if (!meta) return val;
@@ -202,7 +201,7 @@ const AgrisightCharts = (function () {
           {
             label: regencyData.name,
             data: regencyNorm,
-            backgroundColor: clusterColor + '33',
+            backgroundColor: clusterColor + '25',
             borderColor: clusterColor,
             pointBackgroundColor: clusterColor,
             pointBorderColor: '#ffffff',
@@ -212,10 +211,10 @@ const AgrisightCharts = (function () {
           {
             label: 'Benchmark Nasional',
             data: nationalNorm,
-            backgroundColor: 'rgba(148, 163, 184, 0.1)',
-            borderColor: '#94a3b8',
+            backgroundColor: 'rgba(120, 113, 108, 0.1)',
+            borderColor: '#78716c',
             borderDash: [4, 4],
-            pointBackgroundColor: '#94a3b8',
+            pointBackgroundColor: '#78716c',
             pointRadius: 2,
             borderWidth: 1.5
           }
@@ -229,13 +228,17 @@ const AgrisightCharts = (function () {
             position: 'top',
             labels: {
               color: chartColors.textPrimary,
-              font: { family: 'Outfit', size: 11, weight: '600' },
+              font: { family: 'Plus Jakarta Sans', size: 11, weight: '600' },
               boxWidth: 12,
               padding: 10
             }
           },
           tooltip: {
-            backgroundColor: 'rgba(10, 15, 29, 0.95)',
+            backgroundColor: '#ffffff',
+            titleColor: '#142b1f',
+            bodyColor: '#57534e',
+            borderColor: '#e5e5dc',
+            borderWidth: 1,
             callbacks: {
               label: function (ctx) {
                 return `${ctx.dataset.label}: Skor Performa ${ctx.raw}/100`;
@@ -251,7 +254,7 @@ const AgrisightCharts = (function () {
             grid: { color: chartColors.gridLines },
             pointLabels: {
               color: chartColors.textPrimary,
-              font: { family: 'Outfit', size: 10, weight: '500' }
+              font: { family: 'Plus Jakarta Sans', size: 10, weight: '600' }
             },
             ticks: {
               display: false,
@@ -290,7 +293,7 @@ const AgrisightCharts = (function () {
       'Bebas Stunting (X9)'
     ];
 
-    const palette = ['#3b82f6', '#10b981', '#f59e0b', '#f43f5e'];
+    const palette = ['#1b3b2b', '#d97706', '#b93822', '#2563eb'];
 
     const datasets = regionsList.map((r, i) => {
       const color = palette[i % palette.length];
@@ -332,7 +335,7 @@ const AgrisightCharts = (function () {
             position: 'top',
             labels: {
               color: chartColors.textPrimary,
-              font: { family: 'Outfit', size: 11, weight: '600' }
+              font: { family: 'Plus Jakarta Sans', size: 11, weight: '600' }
             }
           }
         },
@@ -344,7 +347,7 @@ const AgrisightCharts = (function () {
             grid: { color: chartColors.gridLines },
             pointLabels: {
               color: chartColors.textPrimary,
-              font: { family: 'Outfit', size: 10, weight: '500' }
+              font: { family: 'Plus Jakarta Sans', size: 10, weight: '600' }
             },
             ticks: { display: false }
           }

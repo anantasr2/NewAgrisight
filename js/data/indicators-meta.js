@@ -129,41 +129,41 @@ const INDICATORS_META = {
 const CLUSTERS_META = {
   1: {
     id: 1,
-    name: "Cluster 1: Tahan Pangan Tinggi",
-    shortName: "Tahan Pangan Tinggi",
-    label: "Tinggi (Mandiri)",
-    color: "#10b981", // Emerald green
-    fillColor: "#10b981",
-    borderColor: "#059669",
+    name: "Klaster 1: Mandiri & Resilien",
+    shortName: "Mandiri & Resilien",
+    label: "Mandiri (Resilien)",
+    color: "#1b3b2b", // Forest green
+    fillColor: "#1b3b2b",
+    borderColor: "#142b1f",
     badgeClass: "badge-cluster-1",
     icon: "shield-check",
-    description: "Wilayah dengan IKP tinggi (rata-rata >74), akses infrastruktur & fasilitas kesehatan sangat baik, tingkat kemiskinan dan stunting rendah.",
+    description: "Wilayah dengan IKP tinggi (rata-rata >75), akses infrastruktur & fasilitas kesehatan sangat baik, tingkat kemiskinan dan stunting rendah.",
     policyRecommendation: "Pertahankan ketahanan pangan, perkuat diversifikasi pangan lokal, dan kembangkan pusat logistik antarwilayah."
   },
   2: {
     id: 2,
-    name: "Cluster 2: Tahan Pangan Sedang",
-    shortName: "Tahan Pangan Sedang",
-    label: "Sedang (Berkembang)",
-    color: "#f59e0b", // Warm amber
-    fillColor: "#f59e0b",
-    borderColor: "#d97706",
+    name: "Klaster 2: Berkembang & Waspada",
+    shortName: "Berkembang & Waspada",
+    label: "Waspada (Berkembang)",
+    color: "#d97706", // Amber
+    fillColor: "#d97706",
+    borderColor: "#b45309",
     badgeClass: "badge-cluster-2",
     icon: "alert-circle",
-    description: "Wilayah dengan IKP moderat (rata-rata 60–74), infrastruktur cukup memadai namun memiliki beberapa indikator yang perlu penguatan.",
+    description: "Wilayah dengan IKP moderat (rata-rata 60–75), infrastruktur cukup memadai namun rentan terhadap fluktuasi harga pangan musiman.",
     policyRecommendation: "Tingkatkan produktivitas pertanian lokal, perluas akses air bersih perdesaan, dan optimalkan posyandu untuk pencegahan stunting."
   },
   3: {
     id: 3,
-    name: "Cluster 3: Rentan Pangan (Prioritas)",
-    shortName: "Rentan / Prioritas",
+    name: "Klaster 3: Rentan & Prioritas Intervensi",
+    shortName: "Rentan / Prioritas 3T",
     label: "Rentan (Prioritas)",
-    color: "#f43f5e", // Vivid Rose / Coral
-    fillColor: "#f43f5e",
-    borderColor: "#e11d48",
+    color: "#b93822", // Terracotta / Crimson
+    fillColor: "#b93822",
+    borderColor: "#9e2e19",
     badgeClass: "badge-cluster-3",
     icon: "alert-triangle",
-    description: "Wilayah dengan IKP rendah (<60), akses logistik terbatas, angka stunting & kemiskinan relatif tinggi, memerlukan intervensi bantuan sosial & infrastruktur.",
+    description: "Wilayah dengan IKP rendah (<60), akses logistik terbatas, angka stunting & kemiskinan relatif tinggi, memerlukan intervensi bantuan sosial & infrastruktur dasar.",
     policyRecommendation: "Prioritaskan program bantuan pangan berkala, pembangunan sarana sanitasi air bersih, penambahan nakes, dan intervensi gizi terpadu."
   }
 };
@@ -171,3 +171,4 @@ const CLUSTERS_META = {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { INDICATORS_META, CLUSTERS_META };
 }
+

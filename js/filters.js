@@ -7,11 +7,13 @@ const AgrisightFilters = (function () {
   let searchDropdownEl;
   let searchClearBtnEl;
   let provinceSelectEl;
+  let metricSelectEl;
   let clusterPills;
   let resetBtnEl;
 
   let activeProvince = 'ALL';
   let activeCluster = 'ALL'; // 'ALL' | 1 | 2 | 3
+  let activeMetric = 'cluster'; // 'cluster' | 'ikp' | 'x1' ... 'x9'
   let searchQuery = '';
 
   function init() {
@@ -19,10 +21,12 @@ const AgrisightFilters = (function () {
     searchDropdownEl = document.getElementById('search-dropdown');
     searchClearBtnEl = document.getElementById('search-clear');
     provinceSelectEl = document.getElementById('filter-province');
+    metricSelectEl = document.getElementById('filter-metric');
     clusterPills = document.querySelectorAll('.cluster-pill');
     resetBtnEl = document.getElementById('btn-reset-filters');
 
     populateProvinces();
+    populateMetrics();
     bindEvents();
   }
 
@@ -39,6 +43,29 @@ const AgrisightFilters = (function () {
       opt.textContent = prov;
       provinceSelectEl.appendChild(opt);
     });
+  }
+
+  function populateMetrics() {
+    if (!metricSelectEl) return;
+    metricSelectEl.innerHTML = `
+      <option value="cluster">Pewarnaan: Cluster K-Medoids</option>
+      <option value="ikp">Pewarnaan: Indeks Ketahanan Pangan (IKP)</option>
+      <optgroup label="Indikator Ketersediaan">
+        <option value="x1">X1: NCPR (Rasio Konsumsi/Produksi)</option>
+      </optgroup>
+      <optgroup label="Indikator Keterjangkauan">
+        <option value="x2">X2: Kemiskinan (%)</option>
+        <option value="x3">X3: Pengeluaran Pangan (%)</option>
+        <option value="x4">X4: Akses Listrik (%)</option>
+      </optgroup>
+      <optgroup label="Indikator Pemanfaatan">
+        <option value="x5">X5: Akses Air Bersih (%)</option>
+        <option value="x6">X6: Lama Sekolah Wanita (Thn)</option>
+        <option value="x7">X7: Rasio Nakes (/1k)</option>
+        <option value="x8">X8: Angka Harapan Hidup (Thn)</option>
+        <option value="x9">X9: Prevalensi Stunting (%)</option>
+      </optgroup>
+    `;
   }
 
   function bindEvents() {
@@ -88,11 +115,24 @@ const AgrisightFilters = (function () {
       });
     }
 
+    // Metric mode change
+    if (metricSelectEl) {
+      metricSelectEl.addEventListener('change', function (e) {
+        activeMetric = e.target.value;
+        if (window.AgrisightMap) {
+          AgrisightMap.setMetricMode(activeMetric);
+        }
+      });
+    }
+
     // Cluster pill selection
     clusterPills.forEach(pill => {
       pill.addEventListener('click', function () {
+        clusterPills.forEach(p => p.classList.remove('active'));
+        this.classList.add('active');
         const cl = this.getAttribute('data-cluster');
-        setClusterFilter(cl === 'ALL' ? 'ALL' : parseInt(cl, 10));
+        activeCluster = cl === 'ALL' ? 'ALL' : parseInt(cl, 10);
+        applyFilters();
       });
     });
 
@@ -100,19 +140,6 @@ const AgrisightFilters = (function () {
     if (resetBtnEl) {
       resetBtnEl.addEventListener('click', resetAll);
     }
-  }
-
-  function setClusterFilter(clusterVal) {
-    activeCluster = clusterVal;
-    clusterPills.forEach(p => {
-      const pillVal = p.getAttribute('data-cluster');
-      if (pillVal === String(clusterVal)) {
-        p.classList.add('active');
-      } else {
-        p.classList.remove('active');
-      }
-    });
-    applyFilters();
   }
 
   function renderSearchSuggestions(query) {
@@ -179,11 +206,13 @@ const AgrisightFilters = (function () {
   function resetAll() {
     activeProvince = 'ALL';
     activeCluster = 'ALL';
+    activeMetric = 'cluster';
     searchQuery = '';
 
     if (searchInputEl) searchInputEl.value = '';
     if (searchClearBtnEl) searchClearBtnEl.style.display = 'none';
     if (provinceSelectEl) provinceSelectEl.value = 'ALL';
+    if (metricSelectEl) metricSelectEl.value = 'cluster';
 
     clusterPills.forEach(p => {
       if (p.getAttribute('data-cluster') === 'ALL') p.classList.add('active');
@@ -192,6 +221,7 @@ const AgrisightFilters = (function () {
 
     hideSearchSuggestions();
     if (window.AgrisightMap) {
+      AgrisightMap.setMetricMode('cluster');
       AgrisightMap.resetView();
     }
     updateSummaryStats();
@@ -226,9 +256,8 @@ const AgrisightFilters = (function () {
   return {
     init,
     resetAll,
-    setClusterFilter,
     applyFilters,
     updateSummaryStats,
-    getActiveFilters: () => ({ province: activeProvince, cluster: activeCluster, query: searchQuery })
+    getActiveFilters: () => ({ province: activeProvince, cluster: activeCluster, metric: activeMetric, query: searchQuery })
   };
 })();

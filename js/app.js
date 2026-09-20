@@ -37,18 +37,21 @@ const AgrisightApp = (function () {
     const navTabs = document.querySelectorAll('.nav-tab');
     navTabs.forEach(tab => {
       tab.addEventListener('click', function (e) {
-        e.preventDefault();
-        const feature = this.getAttribute('data-nav');
-        if (feature === 'spatial') return;
+        const href = this.getAttribute('href');
+        // Allow regular page link transitions
+        if (href && (href.includes('index.html') || href.includes('prediction.html') || href.includes('spatial.html'))) {
+          return;
+        }
 
+        const feature = this.getAttribute('data-nav');
+        if (!feature || feature === 'spatial') return;
+
+        e.preventDefault();
         if (feature === 'dashboard' && window.AgrisightDashboardModal) {
           AgrisightDashboardModal.open();
         } else if (feature === 'regional' && window.AgrisightAnalysisModal) {
           const selected = (AgrisightSidebar && AgrisightSidebar.getCurrentRegency()) || (typeof KABUPATEN_DATA !== 'undefined' ? KABUPATEN_DATA[0] : null);
           AgrisightAnalysisModal.open(selected);
-        } else if (feature === 'prediction' && window.AgrisightPredictionModal) {
-          const selected = (AgrisightSidebar && AgrisightSidebar.getCurrentRegency()) || (typeof KABUPATEN_DATA !== 'undefined' ? KABUPATEN_DATA[0] : null);
-          AgrisightPredictionModal.open(selected);
         } else if (feature === 'whatif' && window.AgrisightWhatIfModal) {
           const selected = (AgrisightSidebar && AgrisightSidebar.getCurrentRegency()) || (typeof KABUPATEN_DATA !== 'undefined' ? KABUPATEN_DATA[0] : null);
           AgrisightWhatIfModal.open(selected);
@@ -77,7 +80,7 @@ const AgrisightApp = (function () {
 
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
-    
+
     let icon = 'ℹ️';
     if (type === 'success') icon = '✅';
     if (type === 'error') icon = '⚠️';
