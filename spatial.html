@@ -149,18 +149,18 @@
         </div>
         <div class="summary-stat-item">
           <span class="stat-dot dot-c1"></span>
-          <span class="stat-label">Klaster 1 (Mandiri):</span>
-          <span class="stat-val" id="stat-c1-count">198</span>
+          <span class="stat-label">Klaster 1 (Daerah Stabil Pangan):</span>
+          <span class="stat-val" id="stat-c1-count">175</span>
         </div>
         <div class="summary-stat-item">
           <span class="stat-dot dot-c2"></span>
-          <span class="stat-label">Klaster 2 (Waspada):</span>
-          <span class="stat-val" id="stat-c2-count">212</span>
+          <span class="stat-label">Klaster 2 (Daerah Potensial Pangan):</span>
+          <span class="stat-val" id="stat-c2-count">150</span>
         </div>
         <div class="summary-stat-item">
           <span class="stat-dot dot-c3"></span>
-          <span class="stat-label">Klaster 3 (Rentan):</span>
-          <span class="stat-val" id="stat-c3-count">104</span>
+          <span class="stat-label">Klaster 3 (Daerah Rentan Pangan):</span>
+          <span class="stat-val" id="stat-c3-count">189</span>
         </div>
       </div>
 
@@ -201,13 +201,13 @@
       <!-- Cluster Quick Filter Buttons -->
       <div class="cluster-pill-group">
         <button class="cluster-pill active" data-cluster="ALL">Semua</button>
-        <button class="cluster-pill" data-cluster="1">Mandiri</button>
-        <button class="cluster-pill" data-cluster="2">Waspada</button>
-        <button class="cluster-pill" data-cluster="3">Rentan</button>
+        <button class="cluster-pill" data-cluster="1">Stabil Pangan</button>
+        <button class="cluster-pill" data-cluster="2">Potensial Pangan</button>
+        <button class="cluster-pill" data-cluster="3">Rentan Pangan</button>
       </div>
 
       <!-- Metric Coloring Dropdown -->
-      <div class="metric-mode-wrapper">
+      <!-- <div class="metric-mode-wrapper">
         <select id="filter-metric" class="filter-select">
           <option value="cluster">Pewarnaan: Klaster K-Medoids</option>
           <option value="ikp">Pewarnaan: Indeks Ketahanan Pangan (IKP)</option>
@@ -227,15 +227,16 @@
             <option value="x9">X9: Balita Stunting (%)</option>
           </optgroup>
         </select>
-      </div>
+      </div> -->
 
       <!-- Reset Filter Button -->
-      <button id="btn-reset-filters" class="btn-icon" title="Reset Semua Filter">
+      <!-- <button id="btn-reset-filters" class="btn-icon" title="Reset Semua Filter">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
         </svg>
-      </button>
+      </button> -->
+
     </div>
 
     <!-- Main Viewport (Leaflet Map) -->
@@ -295,7 +296,7 @@
           <div class="score-card-bg-glow" id="sidebar-glow"></div>
           <div class="score-details">
             <div class="cluster-tag">
-              <span id="sidebar-cluster-badge" class="badge badge-cluster-1">Klaster 1: Mandiri</span>
+              <span id="sidebar-cluster-badge" class="badge badge-cluster-1">Klaster 1: Daerah Stabil Pangan</span>
             </div>
             <p class="score-desc" id="sidebar-cluster-desc">
               Kategori wilayah dengan ketahanan pangan prima, didukung infrastruktur dan sanitasi air memadai.
