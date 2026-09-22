@@ -333,21 +333,21 @@ const AgrisightMap = (function () {
             <span class="legend-color-box" style="background-color:#1b3b2b;"></span>
             <span class="legend-item-name">Klaster 1: Daerah Stabil Pangan</span>
           </div>
-          <span class="legend-item-count">${c1Count}</span>
+          <span class="legend-item-count">175</span>
         </div>
         <div class="legend-item" data-cluster="2">
           <div class="legend-item-left">
             <span class="legend-color-box" style="background-color:#d97706;"></span>
             <span class="legend-item-name">Klaster 2: Daerah Potensial Pangan</span>
           </div>
-          <span class="legend-item-count">${c2Count}</span>
+          <span class="legend-item-count">150</span>
         </div>
         <div class="legend-item" data-cluster="3">
           <div class="legend-item-left">
             <span class="legend-color-box" style="background-color:#b93822;"></span>
             <span class="legend-item-name">Klaster 3: Daerah Rentan Pangan</span>
           </div>
-          <span class="legend-item-count">${c3Count}</span>
+          <span class="legend-item-count">189</span>
         </div>
       `;
     } else {
