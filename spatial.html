@@ -81,7 +81,7 @@
   <div class="app-container">
 
     <!-- Top Application Header (Exact Same Structure & Height across All Pages) -->
-    <header class="sticky top-0 z-50 bg-[#fafaf5]/90 backdrop-blur-md border-b border-[#e5e5dc] transition-all duration-200">
+    <header class="sticky top-0 z-[1050] bg-[#fafaf5]/90 backdrop-blur-md border-b border-[#e5e5dc] transition-all duration-200">
 
       
 
@@ -106,7 +106,7 @@
           </a>
           <a class="px-4 py-2 rounded-full font-bold text-white bg-forest-800 shadow-sm transition-all inline-flex items-center gap-1.5" href="spatial.html">
             <span>Peta Spasial</span>
-            <span class="text-[9px] uppercase px-1.5 py-0.5 rounded-full bg-forest-100 text-forest-800 font-bold border border-forest-200">514 Daerah</span>
+            <span class="text-[9px] uppercase px-1.5 py-0.5 rounded-full bg-white/20 text-white font-bold border border-white/20">514 Daerah</span>
           </a>
           <a class="px-4 py-2 rounded-full hover:text-forest-900 hover:bg-white/80 transition-colors inline-flex items-center gap-1.5 text-stone-700" href="prediction.html">
             <span>Prediksi Nilai IKP</span>
@@ -134,7 +134,7 @@
         </a>
         <a class="flex items-center justify-between px-4 py-3 rounded-xl font-bold text-white bg-forest-800 shadow-sm" href="spatial.html">
           <span>Peta Spasial</span>
-          <span class="text-[10px] uppercase px-2 py-0.5 rounded-full bg-forest-100 text-forest-800 font-bold border border-forest-200">514 Daerah</span>
+          <span class="text-[10px] uppercase px-2 py-0.5 rounded-full bg-white/20 text-white font-bold border border-white/20">514 Daerah</span>
         </a>
         <a class="flex items-center justify-between px-4 py-3 rounded-xl font-semibold text-stone-700 hover:bg-[#eeeee9] transition-colors" href="prediction.html">
           <span>Prediksi Nilai IKP</span>
@@ -183,68 +183,38 @@
       </div>
     </section>
 
-    <!-- Filter Floating Toolbar -->
-    <div class="filter-toolbar">
-      <!-- Search Input with Auto-complete -->
-      <div class="search-box-wrapper">
-        <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
-        <input type="text" id="search-kabupaten" class="search-input" placeholder="Cari kab/kota..."
-          autocomplete="off">
-        <span id="search-clear" class="search-clear-btn">&times;</span>
-        <div id="search-dropdown" class="search-results-dropdown"></div>
-      </div>
-
-      <!-- Province Dropdown Filter -->
-      <select id="filter-province" class="filter-select">
-        <option value="ALL">Semua Provinsi (38)</option>
-      </select>
-
-      <!-- Cluster Quick Filter Buttons -->
-      <div class="cluster-pill-group">
-        <button class="cluster-pill active" data-cluster="ALL">Semua</button>
-        <button class="cluster-pill" data-cluster="1">Stabil Pangan</button>
-        <button class="cluster-pill" data-cluster="2">Potensial Pangan</button>
-        <button class="cluster-pill" data-cluster="3">Rentan Pangan</button>
-      </div>
-
-      <!-- Metric Coloring Dropdown -->
-      <!-- <div class="metric-mode-wrapper">
-        <select id="filter-metric" class="filter-select">
-          <option value="cluster">Pewarnaan: Klaster K-Medoids</option>
-          <option value="ikp">Pewarnaan: Indeks Ketahanan Pangan (IKP)</option>
-          <optgroup label="Indikator Ketersediaan">
-            <option value="x1">X1: NCPR (Rasio Konsumsi/Produksi)</option>
-          </optgroup>
-          <optgroup label="Indikator Keterjangkauan">
-            <option value="x2">X2: Kemiskinan (%)</option>
-            <option value="x3">X3: Pengeluaran Pangan (%)</option>
-            <option value="x4">X4: Akses Listrik (%)</option>
-          </optgroup>
-          <optgroup label="Indikator Pemanfaatan">
-            <option value="x5">X5: Akses Air Bersih (%)</option>
-            <option value="x6">X6: Lama Sekolah Wanita (Thn)</option>
-            <option value="x7">X7: Rasio Nakes / 1k</option>
-            <option value="x8">X8: Harapan Hidup (Thn)</option>
-            <option value="x9">X9: Balita Stunting (%)</option>
-          </optgroup>
-        </select>
-      </div> -->
-
-      <!-- Reset Filter Button -->
-      <!-- <button id="btn-reset-filters" class="btn-icon" title="Reset Semua Filter">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-        </svg>
-      </button> -->
-
-    </div>
-
     <!-- Main Viewport (Leaflet Map) -->
     <main class="map-viewport">
+      <!-- Filter Floating Toolbar -->
+      <div class="filter-toolbar">
+        <!-- Search Input with Auto-complete -->
+        <div class="search-box-wrapper">
+          
+          <input type="text" id="search-kabupaten" class="search-input" placeholder="Cari kab/kota..."
+            autocomplete="off">
+          <span id="search-clear" class="search-clear-btn">&times;</span>
+          <div id="search-dropdown" class="search-results-dropdown"></div>
+        </div>
+
+        <!-- Province Dropdown Filter -->
+        <!-- <select id="filter-province" class="filter-select">
+          <option value="ALL">Semua Provinsi (38)</option>
+        </select> -->
+
+        <!-- Regency / City Dropdown Filter -->
+        <!-- <select id="filter-kabupaten" class="filter-select">
+          <option value="ALL">Semua Kab/Kota (514)</option>
+        </select> -->
+
+        <!-- Cluster Quick Filter Buttons -->
+        <div class="cluster-pill-group">
+          <button class="cluster-pill active" data-cluster="ALL">Semua</button>
+          <button class="cluster-pill" data-cluster="1">Stabil Pangan</button>
+          <button class="cluster-pill" data-cluster="2">Potensial Pangan</button>
+          <button class="cluster-pill" data-cluster="3">Rentan Pangan</button>
+        </div>
+      </div>
+
       <div id="indonesia-map"></div>
 
       <!-- Floating Map Zoom/Reset Actions -->

@@ -15,6 +15,15 @@
 }
 
 /* Header */
+header.sticky {
+  position: sticky;
+  top: 0;
+  z-index: 1050 !important;
+  background: rgba(250, 250, 245, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
 .app-header {
   height: var(--header-height);
   background: var(--bg-glass-heavy);
@@ -186,8 +195,8 @@
 /* Filter Toolbar */
 .filter-toolbar {
   position: absolute;
-  top: 136px;
-  left: 24px;
+  top: 16px;
+  left: 20px;
   z-index: 800;
   display: flex;
   align-items: center;
@@ -196,9 +205,10 @@
   border-radius: var(--radius-lg);
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border-subtle);
   box-shadow: var(--shadow-sm);
-  max-width: calc(100vw - 48px);
+  max-width: calc(100% - 40px);
 }
 
 /* Search Box & Autocomplete */
@@ -295,7 +305,9 @@
   color: var(--forest-900);
   cursor: pointer;
   font-size: 0.82rem;
-  max-width: 170px;
+  max-width: 175px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Cluster Button Pills */
@@ -405,8 +417,8 @@
 /* Floating Map Controls */
 .map-floating-controls {
   position: absolute;
-  top: 195px;
-  left: 24px;
+  top: 76px;
+  left: 20px;
   z-index: 800;
   display: flex;
   flex-direction: column;
@@ -1604,10 +1616,10 @@
   /* Filter Floating Toolbar on Mobile */
   .filter-toolbar {
     position: absolute;
-    top: 120px;
+    top: 12px;
     left: 10px;
     right: 10px;
-    max-width: calc(100vw - 20px);
+    max-width: calc(100% - 20px);
     flex-wrap: wrap;
     gap: 8px;
     padding: 10px;
@@ -1645,10 +1657,11 @@
     padding: 6px 10px;
   }
 
-  #filter-province {
+  #filter-province,
+  #filter-kabupaten {
     order: 3;
-    flex: 1 1 calc(50% - 24px);
-    min-width: 120px;
+    flex: 1 1 calc(50% - 6px);
+    min-width: 130px;
   }
 
   .metric-mode-wrapper {
@@ -1775,13 +1788,14 @@
   }
 
   .filter-toolbar {
-    top: 114px;
+    top: 10px;
     left: 8px;
     right: 8px;
-    max-width: calc(100vw - 16px);
+    max-width: calc(100% - 16px);
   }
 
   #filter-province,
+  #filter-kabupaten,
   .metric-mode-wrapper {
     flex: 1 1 100%;
   }

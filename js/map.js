@@ -13,6 +13,23 @@ const AgrisightMap = (function () {
   const dataById = new Map();
   const dataByName = new Map();
   const layerById = new Map();
+  const layerByName = new Map();
+
+  // Active filter state
+  const activeFilters = {
+    province: 'ALL',
+    cluster: 'ALL', // 'ALL' | 1 | 2 | 3
+    kabupatenId: 'ALL',
+    query: ''
+  };
+
+  // Fallback for newly formed regencies that share geometry with parent in baseline GeoJSON
+  const KABUPATEN_FALLBACK_PARENT = {
+    '7412': '7403', // Konawe Kepulauan -> Konawe
+    '7413': '7402', // Muna Barat -> Muna
+    '7414': '7401', // Buton Selatan -> Buton
+    '7415': '7401'  // Buton Tengah -> Buton
+  };
 
   // Initial map center & bounds strictly for Indonesia archipelago
   const INDO_CENTER = [-2.5, 118.0];
@@ -111,10 +128,39 @@ const AgrisightMap = (function () {
     };
   }
 
+  function isFeatureMatching(data) {
+    if (!data) return false;
+    if (activeFilters.province !== 'ALL' && data.province !== activeFilters.province) return false;
+    if (activeFilters.cluster !== 'ALL' && data.cluster !== activeFilters.cluster) return false;
+    if (activeFilters.kabupatenId !== 'ALL' && data.id !== activeFilters.kabupatenId) return false;
+    if (activeFilters.query) {
+      const q = activeFilters.query.toLowerCase().trim();
+      const n = (data.name || '').toLowerCase();
+      const p = (data.province || '').toLowerCase();
+      if (!n.includes(q) && !p.includes(q)) return false;
+    }
+    return true;
+  }
+
   function getFeatureStyle(feature) {
     const data = getFeatureData(feature);
+    const isMatch = isFeatureMatching(data);
+
+    // KETIKA FILTER DIAKTIFKAN: Daerah yang TIDAK DIPILIH benar-benar TIDAK ADA WARNANYA (abu-abu netral)
+    if (!isMatch) {
+      return {
+        fillColor: '#ebebe5',
+        weight: 0.4,
+        opacity: 0.35,
+        color: '#d4d4cb',
+        fillOpacity: 0.15,
+        className: 'geo-kabupaten-inactive'
+      };
+    }
+
+    // Daerah yang cocok / aktif menampilkan warna yang jelas dan cerah
     let fillColor = '#dedecc';
-    let fillOpacity = 0.82;
+    let fillOpacity = 0.88;
 
     if (activeMetric === 'cluster') {
       const c = data.cluster;
@@ -128,8 +174,8 @@ const AgrisightMap = (function () {
 
     return {
       fillColor: fillColor,
-      weight: 0.8,
-      opacity: 0.9,
+      weight: 0.9,
+      opacity: 0.95,
       color: '#ffffff',
       fillOpacity: fillOpacity,
       className: 'geo-kabupaten-polygon'
@@ -171,7 +217,13 @@ const AgrisightMap = (function () {
   function onEachFeature(feature, layer) {
     const data = getFeatureData(feature);
     feature.properties._data = data;
-    layerById.set(data.id, layer);
+
+    // Index layer by all possible identifiers
+    if (data.id) layerById.set(data.id, layer);
+    if (feature.properties.id) layerById.set(feature.properties.id, layer);
+    if (feature.properties.code) layerById.set(feature.properties.code, layer);
+    const cleanName = data.name.toLowerCase().replace(/kabupaten|kota/g, '').trim();
+    layerByName.set(cleanName, layer);
 
     // Tooltip
     const clusterMeta = CLUSTERS_META[data.cluster];
@@ -194,13 +246,22 @@ const AgrisightMap = (function () {
     // Hover effect
     layer.on('mouseover', function (e) {
       if (layer !== highlightedLayer) {
-        layer.setStyle({
-          weight: 2.5,
-          color: '#38bdf8',
-          fillOpacity: 0.92
-        });
-        if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-          layer.bringToFront();
+        const isMatch = isFeatureMatching(data);
+        if (isMatch) {
+          layer.setStyle({
+            weight: 2.5,
+            color: '#38bdf8',
+            fillOpacity: 0.95
+          });
+          if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+            layer.bringToFront();
+          }
+        } else {
+          layer.setStyle({
+            weight: 1.0,
+            color: '#94a3b8',
+            fillOpacity: 0.25
+          });
         }
       }
     });
@@ -224,22 +285,29 @@ const AgrisightMap = (function () {
   function highlightPolygon(layer, data) {
     clearHighlight();
     highlightedLayer = layer;
+
+    // Warna highlight kuning emas cerah dengan border kontras agar langsung terlihat
     layer.setStyle({
       weight: 3.5,
-      color: '#ffffff',
+      color: '#facc15',
       fillOpacity: 1.0
     });
     if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
       layer.bringToFront();
     }
-    // Pan smoothly to polygon bounds
+
+    // Pan & zoom smoothly ke polygon bounds
+    const isSidebarOpen = AgrisightSidebar && AgrisightSidebar.isOpen();
     map.fitBounds(layer.getBounds(), {
-      paddingTopLeft: [50, 50],
-      paddingBottomRight: [AgrisightSidebar.isOpen() ? 480 : 50, 50],
+      paddingTopLeft: [60, 60],
+      paddingBottomRight: [isSidebarOpen ? 460 : 60, 60],
       maxZoom: 9,
       animate: true,
-      duration: 0.6
+      duration: 0.65
     });
+
+    // Tampilkan tooltip secara otomatis tepat di wilayah yang dipencet
+    layer.openTooltip();
   }
 
   function clearHighlight() {
@@ -250,8 +318,25 @@ const AgrisightMap = (function () {
   }
 
   function selectKabupatenById(id, shouldZoom) {
-    const layer = layerById.get(id);
-    const data = dataById.get(id);
+    let layer = layerById.get(id);
+    let data = dataById.get(id);
+
+    // Fallback to parent geometry if newly formed regency
+    if (!layer && KABUPATEN_FALLBACK_PARENT[id]) {
+      const parentId = KABUPATEN_FALLBACK_PARENT[id];
+      layer = layerById.get(parentId);
+    }
+
+    // Fallback by clean name
+    if (!layer && data) {
+      const cleanName = data.name.toLowerCase().replace(/kabupaten|kota/g, '').trim();
+      layer = layerByName.get(cleanName);
+    }
+
+    if (!data && id) {
+      data = dataById.get(id);
+    }
+
     if (layer && data) {
       highlightPolygon(layer, data);
       if (AgrisightSidebar) {
@@ -270,46 +355,49 @@ const AgrisightMap = (function () {
     updateLegend();
   }
 
-  function applyFilters({ province, cluster, query }) {
+  function applyFilters(filters = {}) {
     if (!geojsonLayer) return;
+
+    if (filters.province !== undefined) activeFilters.province = filters.province;
+    if (filters.cluster !== undefined) activeFilters.cluster = filters.cluster;
+    if (filters.query !== undefined) activeFilters.query = filters.query;
+    if (filters.kabupatenId !== undefined) activeFilters.kabupatenId = filters.kabupatenId;
 
     let matchedBounds = L.latLngBounds();
     let hasMatches = false;
 
+    // Refresh style seluruh layer secara konsisten
+    geojsonLayer.setStyle(getFeatureStyle);
+
     geojsonLayer.eachLayer(layer => {
       const data = layer.feature.properties._data;
-      let match = true;
-
-      if (province !== 'ALL' && data.province !== province) match = false;
-      if (cluster !== 'ALL' && data.cluster !== cluster) match = false;
-      if (query && !data.name.toLowerCase().includes(query) && !data.province.toLowerCase().includes(query)) match = false;
-
-      if (match) {
-        geojsonLayer.resetStyle(layer);
-        layer.setStyle({ fillOpacity: 0.8, opacity: 1 });
+      if (isFeatureMatching(data)) {
         matchedBounds.extend(layer.getBounds());
         hasMatches = true;
-      } else {
-        layer.setStyle({
-          fillOpacity: 0.06,
-          weight: 0.5,
-          color: 'rgba(255,255,255,0.05)'
-        });
       }
     });
 
-    if (hasMatches && province !== 'ALL') {
+    // Jika filter kabupaten spesifik dipilih, langsung highlight
+    if (activeFilters.kabupatenId && activeFilters.kabupatenId !== 'ALL') {
+      selectKabupatenById(activeFilters.kabupatenId, true);
+    } else if (hasMatches && activeFilters.province !== 'ALL') {
       map.fitBounds(matchedBounds, {
         paddingTopLeft: [40, 40],
         paddingBottomRight: [AgrisightSidebar && AgrisightSidebar.isOpen() ? 480 : 40, 40],
         maxZoom: 9,
-        animate: true
+        animate: true,
+        duration: 0.6
       });
     }
   }
 
   function resetView() {
     clearHighlight();
+    activeFilters.province = 'ALL';
+    activeFilters.cluster = 'ALL';
+    activeFilters.kabupatenId = 'ALL';
+    activeFilters.query = '';
+
     map.setView(INDO_CENTER, INDO_ZOOM, { animate: true });
     if (geojsonLayer) {
       geojsonLayer.setStyle(getFeatureStyle);
@@ -328,21 +416,21 @@ const AgrisightMap = (function () {
       const c3Count = KABUPATEN_DATA.filter(k => k.cluster === 3).length;
 
       legendItemsEl.innerHTML = `
-        <div class="legend-item" data-cluster="1">
+        <div class="legend-item" data-cluster="1" title="Klik untuk filter Klaster 1">
           <div class="legend-item-left">
             <span class="legend-color-box" style="background-color:#1b3b2b;"></span>
             <span class="legend-item-name">Klaster 1: Daerah Stabil Pangan</span>
           </div>
           <span class="legend-item-count">175</span>
         </div>
-        <div class="legend-item" data-cluster="2">
+        <div class="legend-item" data-cluster="2" title="Klik untuk filter Klaster 2">
           <div class="legend-item-left">
             <span class="legend-color-box" style="background-color:#d97706;"></span>
             <span class="legend-item-name">Klaster 2: Daerah Potensial Pangan</span>
           </div>
           <span class="legend-item-count">150</span>
         </div>
-        <div class="legend-item" data-cluster="3">
+        <div class="legend-item" data-cluster="3" title="Klik untuk filter Klaster 3">
           <div class="legend-item-left">
             <span class="legend-color-box" style="background-color:#b93822;"></span>
             <span class="legend-item-name">Klaster 3: Daerah Rentan Pangan</span>
@@ -350,6 +438,17 @@ const AgrisightMap = (function () {
           <span class="legend-item-count">189</span>
         </div>
       `;
+
+      // Bind click handlers to legend items
+      legendItemsEl.querySelectorAll('.legend-item').forEach(item => {
+        item.style.cursor = 'pointer';
+        item.addEventListener('click', function () {
+          const cl = this.getAttribute('data-cluster');
+          if (window.AgrisightFilters) {
+            AgrisightFilters.setClusterFilter(cl);
+          }
+        });
+      });
     } else {
       const meta = INDICATORS_META[activeMetric] || INDICATORS_META.ikp;
       legendTitleEl.textContent = meta.shortName;

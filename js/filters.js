@@ -7,11 +7,13 @@ const AgrisightFilters = (function () {
   let searchDropdownEl;
   let searchClearBtnEl;
   let provinceSelectEl;
+  let kabupatenSelectEl;
   let metricSelectEl;
   let clusterPills;
   let resetBtnEl;
 
   let activeProvince = 'ALL';
+  let activeKabupaten = 'ALL';
   let activeCluster = 'ALL'; // 'ALL' | 1 | 2 | 3
   let activeMetric = 'cluster'; // 'cluster' | 'ikp' | 'x1' ... 'x9'
   let searchQuery = '';
@@ -21,13 +23,16 @@ const AgrisightFilters = (function () {
     searchDropdownEl = document.getElementById('search-dropdown');
     searchClearBtnEl = document.getElementById('search-clear');
     provinceSelectEl = document.getElementById('filter-province');
+    kabupatenSelectEl = document.getElementById('filter-kabupaten');
     metricSelectEl = document.getElementById('filter-metric');
     clusterPills = document.querySelectorAll('.cluster-pill');
     resetBtnEl = document.getElementById('btn-reset-filters');
 
     populateProvinces();
+    populateKabupaten('ALL');
     populateMetrics();
     bindEvents();
+    bindSummaryBarEvents();
   }
 
   function populateProvinces() {
@@ -43,6 +48,28 @@ const AgrisightFilters = (function () {
       opt.textContent = prov;
       provinceSelectEl.appendChild(opt);
     });
+  }
+
+  function populateKabupaten(selectedProvince = 'ALL') {
+    if (!kabupatenSelectEl || typeof KABUPATEN_DATA === 'undefined') return;
+
+    let items = KABUPATEN_DATA;
+    if (selectedProvince !== 'ALL') {
+      items = KABUPATEN_DATA.filter(k => k.province === selectedProvince);
+      kabupatenSelectEl.innerHTML = `<option value="ALL">Semua di ${selectedProvince} (${items.length})</option>`;
+    } else {
+      kabupatenSelectEl.innerHTML = '<option value="ALL">Semua Kab/Kota (514)</option>';
+    }
+
+    const sortedItems = [...items].sort((a, b) => a.name.localeCompare(b.name, 'id'));
+    sortedItems.forEach(kab => {
+      const opt = document.createElement('option');
+      opt.value = kab.id;
+      opt.textContent = kab.name;
+      kabupatenSelectEl.appendChild(opt);
+    });
+
+    kabupatenSelectEl.value = activeKabupaten;
   }
 
   function populateMetrics() {
@@ -69,7 +96,7 @@ const AgrisightFilters = (function () {
   }
 
   function bindEvents() {
-    // Search input typing
+    // Search input typing & keyboard interactions
     if (searchInputEl) {
       searchInputEl.addEventListener('input', function (e) {
         searchQuery = e.target.value.trim().toLowerCase();
@@ -79,6 +106,8 @@ const AgrisightFilters = (function () {
         } else {
           if (searchClearBtnEl) searchClearBtnEl.style.display = 'none';
           hideSearchSuggestions();
+          activeKabupaten = 'ALL';
+          if (kabupatenSelectEl) kabupatenSelectEl.value = 'ALL';
           applyFilters();
         }
       });
@@ -86,6 +115,23 @@ const AgrisightFilters = (function () {
       searchInputEl.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') {
           hideSearchSuggestions();
+        } else if (e.key === 'Enter') {
+          e.preventDefault();
+          const query = searchInputEl.value.trim().toLowerCase();
+          if (!query || typeof KABUPATEN_DATA === 'undefined') return;
+
+          // Find best matching regency/city
+          const cleanQuery = query.replace(/kabupaten|kota/g, '').trim();
+          const match = KABUPATEN_DATA.find(k => {
+            const kn = k.name.toLowerCase();
+            const kc = kn.replace(/kabupaten|kota/g, '').trim();
+            return kn === query || kc === cleanQuery || kn.includes(query) || kc.includes(cleanQuery);
+          });
+
+          if (match) {
+            hideSearchSuggestions();
+            selectRegency(match);
+          }
         }
       });
     }
@@ -94,8 +140,10 @@ const AgrisightFilters = (function () {
       searchClearBtnEl.addEventListener('click', function () {
         searchInputEl.value = '';
         searchQuery = '';
+        activeKabupaten = 'ALL';
         searchClearBtnEl.style.display = 'none';
         hideSearchSuggestions();
+        if (kabupatenSelectEl) kabupatenSelectEl.value = 'ALL';
         applyFilters();
       });
     }
@@ -111,7 +159,30 @@ const AgrisightFilters = (function () {
     if (provinceSelectEl) {
       provinceSelectEl.addEventListener('change', function (e) {
         activeProvince = e.target.value;
+        activeKabupaten = 'ALL';
+        populateKabupaten(activeProvince);
         applyFilters();
+      });
+    }
+
+    // Regency / City filter change
+    if (kabupatenSelectEl) {
+      kabupatenSelectEl.addEventListener('change', function (e) {
+        activeKabupaten = e.target.value;
+        if (activeKabupaten !== 'ALL') {
+          const item = KABUPATEN_DATA.find(k => k.id === activeKabupaten);
+          if (item) {
+            if (searchInputEl) searchInputEl.value = item.name;
+            if (searchClearBtnEl) searchClearBtnEl.style.display = 'block';
+            if (window.AgrisightMap) {
+              AgrisightMap.selectKabupatenById(item.id, true);
+            }
+          }
+        } else {
+          if (searchInputEl) searchInputEl.value = '';
+          if (searchClearBtnEl) searchClearBtnEl.style.display = 'none';
+          applyFilters();
+        }
       });
     }
 
@@ -125,14 +196,11 @@ const AgrisightFilters = (function () {
       });
     }
 
-    // Cluster pill selection
+    // Cluster pill selection (Semua, Stabil Pangan, Potensial Pangan, Rentan Pangan)
     clusterPills.forEach(pill => {
       pill.addEventListener('click', function () {
-        clusterPills.forEach(p => p.classList.remove('active'));
-        this.classList.add('active');
         const cl = this.getAttribute('data-cluster');
-        activeCluster = cl === 'ALL' ? 'ALL' : parseInt(cl, 10);
-        applyFilters();
+        setClusterFilter(cl);
       });
     });
 
@@ -142,11 +210,47 @@ const AgrisightFilters = (function () {
     }
   }
 
+  function setClusterFilter(cl) {
+    clusterPills.forEach(p => {
+      if (p.getAttribute('data-cluster') === String(cl)) {
+        p.classList.add('active');
+      } else {
+        p.classList.remove('active');
+      }
+    });
+
+    activeCluster = cl === 'ALL' ? 'ALL' : parseInt(cl, 10);
+    applyFilters();
+  }
+
+  function bindSummaryBarEvents() {
+    // Klik pada statistik klaster di Summary Bar untuk langsung memfilter
+    const statItems = document.querySelectorAll('.summary-stat-item');
+    statItems.forEach(item => {
+      const text = item.textContent || '';
+      let targetCluster = null;
+      if (text.includes('Klaster 1') || text.includes('Stabil Pangan')) targetCluster = '1';
+      else if (text.includes('Klaster 2') || text.includes('Potensial Pangan')) targetCluster = '2';
+      else if (text.includes('Klaster 3') || text.includes('Rentan Pangan')) targetCluster = '3';
+      else if (text.includes('Total Wilayah')) targetCluster = 'ALL';
+
+      if (targetCluster !== null) {
+        item.style.cursor = 'pointer';
+        item.setAttribute('title', `Klik untuk filter ${targetCluster === 'ALL' ? 'Semua Wilayah' : 'Klaster ' + targetCluster}`);
+        item.addEventListener('click', function () {
+          setClusterFilter(targetCluster);
+        });
+      }
+    });
+  }
+
   function renderSearchSuggestions(query) {
     if (!searchDropdownEl || typeof KABUPATEN_DATA === 'undefined') return;
 
+    const cleanQ = query.replace(/kabupaten|kota/g, '').trim();
     const matches = KABUPATEN_DATA.filter(k =>
       k.name.toLowerCase().includes(query) ||
+      k.name.toLowerCase().replace(/kabupaten|kota/g, '').trim().includes(cleanQ) ||
       k.province.toLowerCase().includes(query)
     ).slice(0, 10);
 
@@ -162,13 +266,16 @@ const AgrisightFilters = (function () {
 
     searchDropdownEl.innerHTML = '';
     matches.forEach(item => {
-      const clusterMeta = CLUSTERS_META[item.cluster];
+      const clusterMeta = (typeof CLUSTERS_META !== 'undefined' && CLUSTERS_META[item.cluster]) || {
+        badgeClass: 'badge-c' + item.cluster,
+        shortName: 'C' + item.cluster
+      };
       const div = document.createElement('div');
       div.className = 'search-result-item';
       div.innerHTML = `
         <div class="search-item-info">
           <span class="search-item-name">${item.name}</span>
-          <span class="search-item-prov">${item.province}</span>
+          <span class="search-item-prov">Provinsi ${item.province}</span>
         </div>
         <div style="display:flex; align-items:center; gap:8px;">
           <span class="badge ${clusterMeta.badgeClass}" style="font-size:0.65rem;">C${item.cluster}</span>
@@ -177,15 +284,33 @@ const AgrisightFilters = (function () {
       `;
       div.addEventListener('click', function () {
         hideSearchSuggestions();
-        if (searchInputEl) searchInputEl.value = item.name;
-        if (window.AgrisightMap) {
-          AgrisightMap.selectKabupatenById(item.id, true);
-        }
+        selectRegency(item);
       });
       searchDropdownEl.appendChild(div);
     });
 
     searchDropdownEl.style.display = 'block';
+  }
+
+  function selectRegency(item) {
+    if (!item) return;
+
+    if (searchInputEl) searchInputEl.value = item.name;
+    if (searchClearBtnEl) searchClearBtnEl.style.display = 'block';
+
+    // Sinkronkan provinsi & kabupaten
+    activeProvince = item.province;
+    activeKabupaten = item.id;
+
+    if (provinceSelectEl) provinceSelectEl.value = item.province;
+    populateKabupaten(activeProvince);
+    if (kabupatenSelectEl) kabupatenSelectEl.value = item.id;
+
+    // Arahkan peta langsung ke kabupaten tersebut
+    if (window.AgrisightMap) {
+      AgrisightMap.selectKabupatenById(item.id, true);
+    }
+    updateSummaryStats();
   }
 
   function hideSearchSuggestions() {
@@ -197,6 +322,7 @@ const AgrisightFilters = (function () {
       AgrisightMap.applyFilters({
         province: activeProvince,
         cluster: activeCluster,
+        kabupatenId: activeKabupaten,
         query: searchQuery
       });
     }
@@ -205,6 +331,7 @@ const AgrisightFilters = (function () {
 
   function resetAll() {
     activeProvince = 'ALL';
+    activeKabupaten = 'ALL';
     activeCluster = 'ALL';
     activeMetric = 'cluster';
     searchQuery = '';
@@ -212,6 +339,7 @@ const AgrisightFilters = (function () {
     if (searchInputEl) searchInputEl.value = '';
     if (searchClearBtnEl) searchClearBtnEl.style.display = 'none';
     if (provinceSelectEl) provinceSelectEl.value = 'ALL';
+    populateKabupaten('ALL');
     if (metricSelectEl) metricSelectEl.value = 'cluster';
 
     clusterPills.forEach(p => {
@@ -225,7 +353,9 @@ const AgrisightFilters = (function () {
       AgrisightMap.resetView();
     }
     updateSummaryStats();
-    AgrisightApp.showToast('Semua filter direset.', 'info');
+    if (window.AgrisightApp && AgrisightApp.showToast) {
+      AgrisightApp.showToast('Semua filter direset.', 'info');
+    }
   }
 
   function updateSummaryStats() {
@@ -234,6 +364,7 @@ const AgrisightFilters = (function () {
     let filtered = KABUPATEN_DATA.filter(k => {
       if (activeProvince !== 'ALL' && k.province !== activeProvince) return false;
       if (activeCluster !== 'ALL' && k.cluster !== activeCluster) return false;
+      if (activeKabupaten !== 'ALL' && k.id !== activeKabupaten) return false;
       if (searchQuery && !k.name.toLowerCase().includes(searchQuery) && !k.province.toLowerCase().includes(searchQuery)) return false;
       return true;
     });
@@ -243,9 +374,9 @@ const AgrisightFilters = (function () {
     const c3Count = filtered.filter(k => k.cluster === 3).length;
 
     const statTotalEl = document.getElementById('stat-total-kab');
-    const statC1El = document.getElementById('stat-c1-kab');
-    const statC2El = document.getElementById('stat-c2-kab');
-    const statC3El = document.getElementById('stat-c3-kab');
+    const statC1El = document.getElementById('stat-c1-count') || document.getElementById('stat-c1-kab');
+    const statC2El = document.getElementById('stat-c2-count') || document.getElementById('stat-c2-kab');
+    const statC3El = document.getElementById('stat-c3-count') || document.getElementById('stat-c3-kab');
 
     if (statTotalEl) statTotalEl.textContent = `${filtered.length} Kab/Kota`;
     if (statC1El) statC1El.textContent = `${c1Count}`;
@@ -257,7 +388,15 @@ const AgrisightFilters = (function () {
     init,
     resetAll,
     applyFilters,
+    setClusterFilter,
+    selectRegency,
     updateSummaryStats,
-    getActiveFilters: () => ({ province: activeProvince, cluster: activeCluster, metric: activeMetric, query: searchQuery })
+    getActiveFilters: () => ({
+      province: activeProvince,
+      kabupaten: activeKabupaten,
+      cluster: activeCluster,
+      metric: activeMetric,
+      query: searchQuery
+    })
   };
 })();
