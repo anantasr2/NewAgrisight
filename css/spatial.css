@@ -1592,37 +1592,50 @@ header.sticky {
 }
 
 @media (max-width: 768px) {
-  /* Summary Bar on Mobile & Tablet */
+  /* Summary Bar on Mobile & Tablet — compact 2-row grid */
   .summary-bar {
-    padding: 8px 14px;
-    gap: 12px;
-    -webkit-overflow-scrolling: touch;
+    padding: 6px 12px;
+    gap: 0;
+    flex-direction: column;
+    align-items: stretch;
+    overflow-x: visible;
   }
 
   .summary-stats-group {
-    gap: 14px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 10px;
+    width: 100%;
   }
 
   .summary-stat-item {
-    font-size: 0.72rem;
-    gap: 5px;
+    font-size: 0.68rem;
+    gap: 4px;
+    white-space: normal;
+    min-width: 0;
   }
 
   .summary-stat-item .stat-dot {
     width: 7px;
     height: 7px;
+    flex-shrink: 0;
+  }
+
+  /* Hide the IKP + Bandingkan row on very small mobile to save space */
+  .summary-bar > .flex.items-center.gap-4 {
+    display: none;
   }
 
   /* Filter Floating Toolbar on Mobile */
   .filter-toolbar {
     position: absolute;
-    top: 12px;
+    top: 10px;
     left: 10px;
     right: 10px;
     max-width: calc(100% - 20px);
     flex-wrap: wrap;
-    gap: 8px;
-    padding: 10px;
+    gap: 6px;
+    padding: 8px 10px;
     border-radius: var(--radius-md);
   }
 
@@ -1648,26 +1661,25 @@ header.sticky {
 
   .cluster-pill {
     flex-shrink: 0;
-    padding: 4px 10px;
-    font-size: 0.72rem;
+    padding: 4px 9px;
+    font-size: 0.7rem;
   }
 
   .filter-select {
-    font-size: 0.75rem;
-    padding: 6px 10px;
+    font-size: 0.72rem;
+    padding: 5px 8px;
   }
 
   #filter-province,
   #filter-kabupaten {
     order: 3;
-    flex: 1 1 calc(50% - 6px);
-    min-width: 130px;
+    flex: 1 1 calc(50% - 4px);
+    min-width: 110px;
   }
 
   .metric-mode-wrapper {
     order: 4;
-    flex: 1 1 calc(50% - 24px);
-    min-width: 120px;
+    flex: 1 1 100%;
   }
 
   .metric-mode-wrapper select {
@@ -1679,42 +1691,62 @@ header.sticky {
     flex-shrink: 0;
   }
 
-  /* Floating Map Reset View on Mobile */
+  /* Floating Map Reset View: pojok kanan bawah agar tidak tabrak legenda */
   .map-floating-controls {
     top: auto;
-    bottom: 90px;
-    left: 12px;
+    bottom: 12px;
+    left: auto;
+    right: 12px;
   }
 
-  /* Map Legend on Mobile */
+  /* Map Legend on Mobile — full lebar aman, pojok kiri bawah */
   .map-legend-card {
     bottom: 12px;
-    left: 12px;
+    left: 8px;
+    right: auto;
     width: auto;
-    max-width: calc(100vw - 90px);
-    padding: 8px 12px;
+    min-width: 160px;
+    max-width: calc(100vw - 70px);
+    padding: 8px 10px;
   }
 
   .legend-header {
-    margin-bottom: 6px;
+    margin-bottom: 5px;
   }
 
   .legend-title {
-    font-size: 0.72rem;
-  }
-
-  .legend-subtitle {
-    font-size: 0.65rem;
-  }
-
-  .legend-item {
-    padding: 3px 6px;
     font-size: 0.7rem;
   }
 
-  .legend-color-dot {
-    width: 8px;
-    height: 8px;
+  .legend-subtitle {
+    font-size: 0.62rem;
+  }
+
+  .legend-items {
+    gap: 3px;
+  }
+
+  .legend-item {
+    padding: 3px 5px;
+    font-size: 0.68rem;
+    gap: 4px;
+  }
+
+  .legend-item-left {
+    gap: 5px;
+  }
+
+  .legend-color-box {
+    width: 10px;
+    height: 10px;
+  }
+
+  .legend-item-name {
+    font-size: 0.68rem;
+  }
+
+  .legend-item-count {
+    font-size: 0.65rem;
   }
 
   /* Right Sidebar Panel on Mobile (Full-Screen Sheet) */
@@ -1727,34 +1759,34 @@ header.sticky {
   }
 
   .panel-header {
-    padding: 16px 18px 14px;
+    padding: 14px 16px 12px;
   }
 
   .panel-regency-name {
-    font-size: 1.15rem;
+    font-size: 1.1rem;
   }
 
   .panel-province-name {
-    font-size: 0.75rem;
+    font-size: 0.72rem;
   }
 
   .panel-body {
-    padding: 14px 16px 24px;
-    gap: 14px;
-  }
-
-  .regency-score-card {
-    padding: 14px 16px;
+    padding: 12px 14px 24px;
     gap: 12px;
   }
 
+  .regency-score-card {
+    padding: 12px 14px;
+    gap: 10px;
+  }
+
   .score-gauge-circle svg {
-    width: 70px;
-    height: 70px;
+    width: 65px;
+    height: 65px;
   }
 
   .score-gauge-value {
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
 
   /* Comparison Drawer on Mobile */
@@ -1764,34 +1796,52 @@ header.sticky {
   }
 
   .drawer-header {
-    padding: 14px 16px;
+    padding: 12px 14px;
   }
 
   .drawer-title {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
   }
 
   .comparison-table {
-    font-size: 0.75rem;
+    font-size: 0.72rem;
   }
 
   .comparison-table th,
   .comparison-table td {
-    padding: 8px 10px;
+    padding: 7px 8px;
     white-space: nowrap;
   }
 }
 
 @media (max-width: 480px) {
+  /* Summary Bar — 2 col grid tetap pada layar sangat kecil */
   .summary-bar {
-    padding: 6px 10px;
+    padding: 5px 8px;
   }
 
+  .summary-stats-group {
+    grid-template-columns: 1fr 1fr;
+    gap: 3px 8px;
+  }
+
+  .summary-stat-item {
+    font-size: 0.65rem;
+  }
+
+  /* Filter toolbar */
   .filter-toolbar {
-    top: 10px;
-    left: 8px;
-    right: 8px;
-    max-width: calc(100% - 16px);
+    top: 8px;
+    left: 6px;
+    right: 6px;
+    max-width: calc(100% - 12px);
+    gap: 5px;
+    padding: 7px 8px;
+  }
+
+  .cluster-pill {
+    padding: 3px 8px;
+    font-size: 0.67rem;
   }
 
   #filter-province,
@@ -1800,14 +1850,54 @@ header.sticky {
     flex: 1 1 100%;
   }
 
+  /* Reset view button — pojok kanan bawah */
   .map-floating-controls {
-    bottom: 80px;
-    left: 8px;
+    bottom: 10px;
+    right: 10px;
+    left: auto;
   }
 
+  /* Legenda di pojok kiri bawah, ukuran paling kompak */
   .map-legend-card {
     bottom: 8px;
-    left: 8px;
-    max-width: 220px;
+    left: 6px;
+    right: auto;
+    min-width: 140px;
+    max-width: calc(100vw - 60px);
+    padding: 6px 8px;
+  }
+
+  .legend-title {
+    font-size: 0.65rem;
+  }
+
+  .legend-subtitle {
+    font-size: 0.6rem;
+  }
+
+  .legend-item {
+    padding: 2px 4px;
+    font-size: 0.65rem;
+  }
+
+  .legend-color-box {
+    width: 9px;
+    height: 9px;
+  }
+
+  .legend-item-name {
+    font-size: 0.65rem;
+  }
+
+  .legend-item-count {
+    font-size: 0.62rem;
+  }
+
+  /* Leaflet zoom control ukuran lebih kecil di HP */
+  .leaflet-control-zoom a {
+    width: 28px !important;
+    height: 28px !important;
+    line-height: 28px !important;
+    font-size: 15px !important;
   }
 }
